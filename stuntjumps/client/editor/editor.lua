@@ -67,17 +67,21 @@ end
 local guiWindow, setupStartBtn, setupEndBtn, setupCameraBtn, closeBtn
 
 -- Toggles freecam mode on and off
-function toggleFreecam()
-    isFreecamActive = not isFreecamActive
+function toggleFreecam(mode)
+    if mode ~= true and mode ~= false then
+        mode = not isFreecamActive
+    end
+
+    isFreecamActive = mode
 
     if isFreecamActive then
         -- Entering freecam, hide player and HUD
-        setCameraMatrix(getCameraMatrix())
+        local x, y, z = getCameraMatrix()
         showChat(false)
         setElementFrozen(localPlayer, true)
         setElementAlpha(localPlayer, 0)
 
-        exports.stuntjumps_freecam:setFreecamEnabled()
+        exports.stuntjumps_freecam:setFreecamEnabled(x, y, z)
     else
         -- Leaving freecam, restore normal gameplay view
         setCameraTarget(localPlayer)
@@ -117,7 +121,15 @@ function createAndTeleport(_key, _state, adjust)
 
     local startMin = jump.startBox.min
 
-    setElementPosition(localPlayer, startMin.x, startMin.y, startMin.z + 2)
+    if isEditModeActive() then
+        exports.stuntjumps_freecam:setFreecamDisabled()
+
+        setElementPosition(localPlayer, startMin.x, startMin.y, startMin.z + 10)
+
+        exports.stuntjumps_freecam:setFreecamEnabled(startMin.x, startMin.y, startMin.z + 10)
+    else
+        setElementPosition(getPedOccupiedVehicle(localPlayer) or localPlayer, startMin.x, startMin.y, startMin.z + 2)
+    end
 
     -- startBoundingBox = jump.startBox
     -- endBoundingBox = jump.endBox
