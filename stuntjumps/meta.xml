@@ -1,0 +1,21 @@
+<meta>
+  <info author="Lordmau5" type="script" name="stuntjumps"/>
+  <min_mta_version client="1.5.8-9.20862"/>
+
+  <include resource="stuntjumps_freecam"/>
+
+  <file src="crosshair.png"/>
+
+  <script src="client/jump_database.lua" type="client" cache="false"/>
+
+  <script src="client/editor/editor.lua" type="client" cache="false"/>
+  <script src="client/editor/boundingbox_editor.lua" type="client" cache="false"/>
+
+  <script src="client/og_jumps.lua" type="client" cache="false"/>
+  <script src="client/jump.lua" type="client" cache="false"/>
+
+  <script src="server/spawn_nrg.lua" type="server"/>
+
+  <script src="c_stuntjumps.lua" type="client" cache="false"/>
+  <script src="s_stuntjumps.lua" type="server"/>
+</meta>

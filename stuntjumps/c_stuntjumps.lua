@@ -1,0 +1,43 @@
+function onClientResourceStart()
+    setGameSpeed(1)
+    setFPSLimit(60)
+
+    setPlayerHudComponentVisible("all", false)
+
+    setPlayerHudComponentVisible("clock", true)
+    setPlayerHudComponentVisible("radar", true)
+
+    setPedCanBeKnockedOffBike(localPlayer, false)
+end
+addEventHandler("onClientResourceStart", resourceRoot, onClientResourceStart)
+
+function onClientResourceStop()
+    setPlayerHudComponentVisible("all", true)
+    setPedCanBeKnockedOffBike(localPlayer, true)
+end
+addEventHandler("onClientResourceStop", resourceRoot, onClientResourceStop)
+
+function ensureNightTime()
+    setTime(0, 0)
+end
+setTimer(ensureNightTime, 500, 0)
+
+local cooldown = 0
+function spawnNRG500()
+    local currentTime = getTickCount()
+    if currentTime < cooldown then
+        return
+    end
+
+    cooldown = currentTime + 3000
+
+    triggerServerEvent("spawnNRG500", localPlayer)
+end
+bindKey("n", "down", spawnNRG500)
+
+function resetStuntJumps()
+    for _, jump in ipairs(StuntJumps.jumps) do
+        jump.done = false
+    end
+end
+bindKey("r", "down", resetStuntJumps)
