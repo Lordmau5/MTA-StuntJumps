@@ -14,7 +14,7 @@
   <script src="client/og_jumps.lua" type="client" cache="false"/>
   <script src="client/jump.lua" type="client" cache="false"/>
 
-  <script src="server/spawn_nrg.lua" type="server"/>
+  <script src="server/spawn_vehicles.lua" type="server"/>
 
   <script src="c_stuntjumps.lua" type="client" cache="false"/>
   <script src="s_stuntjumps.lua" type="server"/>

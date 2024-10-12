@@ -23,7 +23,7 @@ end
 setTimer(ensureNightTime, 500, 0)
 
 local cooldown = 0
-function spawnNRG500()
+function spawnVehicle(_key, _state, type)
     local currentTime = getTickCount()
     if currentTime < cooldown then
         return
@@ -31,9 +31,10 @@ function spawnNRG500()
 
     cooldown = currentTime + 3000
 
-    triggerServerEvent("spawnNRG500", localPlayer)
+    triggerServerEvent("spawnVehicle", localPlayer, type)
 end
-bindKey("n", "down", spawnNRG500)
+bindKey("n", "down", spawnVehicle, "nrg")
+bindKey("i", "down", spawnVehicle, "packer")
 
 function resetStuntJumps()
     for _, jump in ipairs(StuntJumps.jumps) do
