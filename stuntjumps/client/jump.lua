@@ -148,7 +148,9 @@ function gameTick()
 
         if StuntJumps.isInEndTrigger(currentStuntJump, vehX, vehY, vehZ) and not currentStuntJump.hitEndTrigger then
             currentStuntJump.hitEndTrigger = true
-            playSFX("genrl", 52, 18, false)
+            if not currentStuntJump.done then
+                playSFX("genrl", 52, 18, false)
+            end
         end
 
         local failed = isFailureStateMet()
