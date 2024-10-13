@@ -39,6 +39,13 @@ local function isVehicleDrivingJumpSpeed(vehicle)
     end
 
     local vx, vy, vz = getElementVelocity(vehicle)
+
+    -- Check if Z velocity is upward at least a bit
+    -- This prevents jumps from triggering when jumping *down*
+    if vz <= 0.1 then
+        return false
+    end
+
     return (math.sqrt(vx ^ 2 + vy ^ 2 + vz ^ 2) * 50) >= 20
 end
 
