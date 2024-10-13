@@ -4,7 +4,6 @@ function onClientResourceStart()
 
     setPlayerHudComponentVisible("all", false)
 
-    setPlayerHudComponentVisible("clock", true)
     setPlayerHudComponentVisible("radar", true)
 
     setPedCanBeKnockedOffBike(localPlayer, false)
