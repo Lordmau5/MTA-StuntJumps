@@ -37,7 +37,7 @@ bindKey("i", "down", spawnVehicle, "packer")
 
 function resetStuntJumps()
     for _, jump in ipairs(StuntJumps.jumps) do
-        jump.done = false
+        jump:setJumpDone(false)
     end
 end
 bindKey("r", "down", resetStuntJumps)
