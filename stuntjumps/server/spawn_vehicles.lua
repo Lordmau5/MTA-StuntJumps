@@ -15,7 +15,6 @@ function spawnVehicle(type)
     setElementRotation(vehicle, getElementRotation(source))
     warpPedIntoVehicle(source, vehicle)
 
-    -- setElementCollidableWith(vehicle, player, false) -- Prevents player from falling off
     setVehicleDamageProof(vehicle, true)
     setVehicleEngineState(vehicle, true)
 

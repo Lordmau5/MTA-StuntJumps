@@ -167,7 +167,7 @@ function gameTick()
         setCameraTarget(localPlayer)
 
         if currentStuntJump.hitEndTrigger and not currentStuntJump.done then
-            currentStuntJump.done = true
+            currentStuntJump:setJumpDone()
             outputChatBox("Completed stunt jump!", 0, 230, 0)
         else
             if currentStuntJump.done then

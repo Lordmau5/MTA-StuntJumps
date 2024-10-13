@@ -6,6 +6,12 @@
 
   <file src="crosshair.png"/>
 
+  <!-- Shared -->
+  <script src="shared/class.lua" type="shared" cache="false"/>
+  <script src="shared/classes/boundingbox.lua" type="shared" cache="false"/>
+  <script src="shared/classes/stuntjump.lua" type="shared" cache="false"/>
+
+  <!-- Client -->
   <script src="client/jump_database.lua" type="client" cache="false"/>
 
   <script src="client/editor/editor.lua" type="client" cache="false"/>
@@ -14,6 +20,7 @@
   <script src="client/og_jumps.lua" type="client" cache="false"/>
   <script src="client/jump.lua" type="client" cache="false"/>
 
+  <!-- Server -->
   <script src="server/spawn_vehicles.lua" type="server"/>
 
   <script src="c_stuntjumps.lua" type="client" cache="false"/>

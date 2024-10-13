@@ -369,7 +369,7 @@ end
 setTimer(updateAlphaRenderForEdit, 500, 0)
 
 function renderAllBoundingBoxes()
-    for id, jump in ipairs(StuntJumps.jumps) do
+    for _, jump in ipairs(StuntJumps.jumps) do
         repeat
             if jump.done then
                 break
@@ -381,7 +381,7 @@ function renderAllBoundingBoxes()
             local endColor = tocolor(0, 200, 200, 100)
 
             local currentJump = Jump.getCurrentStuntJump()
-            if currentJump and id == currentJump.id and currentJump.hitEndTrigger then
+            if currentJump and jump.id == currentJump.id and currentJump.hitEndTrigger then
                 endColor = tocolor(0, 200, 0, 100)
             end
 

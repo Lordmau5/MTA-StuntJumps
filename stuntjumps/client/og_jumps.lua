@@ -2002,9 +2002,9 @@ end
 
 local deciphered_jumps = {}
 
-for _, jump in ipairs(og_jumps) do
+for id, jump in ipairs(og_jumps) do
     local tempJump = decipherJump(jump)
-    StuntJumps.add(tempJump.startBox, tempJump.endBox, tempJump.camera, tempJump.reward)
+    StuntJumps.add("gta_" .. id, tempJump.startBox, tempJump.endBox, tempJump.camera, tempJump.reward)
 end
 
 function getOGJumps()
