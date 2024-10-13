@@ -6,8 +6,6 @@ class "StuntJump" {
         self.camera = camera
         self.reward = reward
         self.done = false
-
-        self:setupBlip()
     end,
 
     setupBlip = function(self)

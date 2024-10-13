@@ -2004,9 +2004,16 @@ local deciphered_jumps = {}
 
 for id, jump in ipairs(og_jumps) do
     local tempJump = decipherJump(jump)
-    StuntJumps.add("gta_" .. id, tempJump.startBox, tempJump.endBox, tempJump.camera, tempJump.reward)
+    StuntJumps:add("gta_" .. id, tempJump.startBox, tempJump.endBox, tempJump.camera, tempJump.reward)
 end
 
 function getOGJumps()
     return deciphered_jumps
 end
+
+function onClientRequestJumps()
+    outputDebugString("Requesting jumps")
+    triggerLatentClientEvent(source, "receiveJumps", source, StuntJumps.jumps)
+end
+addEvent("requestJumps", true)
+addEventHandler("requestJumps", root, onClientRequestJumps)

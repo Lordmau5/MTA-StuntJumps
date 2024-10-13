@@ -369,6 +369,10 @@ end
 setTimer(updateAlphaRenderForEdit, 500, 0)
 
 function renderAllBoundingBoxes()
+    if not StuntJumps.jumps then
+        return
+    end
+
     for _, jump in ipairs(StuntJumps.jumps) do
         repeat
             if jump.done then

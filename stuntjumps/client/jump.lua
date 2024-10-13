@@ -94,7 +94,7 @@ local function getStuntJumpForPosition()
         return nil
     end
 
-    return StuntJumps.getJumpForStartBox(vehX, vehY, vehZ)
+    return StuntJumps:getJumpForStartBox(vehX, vehY, vehZ)
 end
 
 local function isFailureStateMet()
@@ -153,7 +153,7 @@ function gameTick()
             return
         end
 
-        if StuntJumps.isInEndTrigger(currentStuntJump, vehX, vehY, vehZ) and not currentStuntJump.hitEndTrigger then
+        if currentStuntJump:isInEndBox(vehX, vehY, vehZ) and not currentStuntJump.hitEndTrigger then
             currentStuntJump.hitEndTrigger = true
             if not currentStuntJump.done then
                 playSFX("genrl", 52, 18, false)
