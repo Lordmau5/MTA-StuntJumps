@@ -46,16 +46,20 @@ class "c_Jump" {
             return false
         end
 
-        local vx, vy, vz = getElementVelocity(self.vehicle)
-        return (math.sqrt(vx ^ 2 + vy ^ 2 + vz ^ 2) * 50) >= 20
+        local v = self.vehicle.velocity
+        return (math.sqrt(v.x ^ 2 + v.y ^ 2 + v.z ^ 2) * 50) >= 20
     end,
 
     isVehicleMovingUpwards = function(self)
-        local vx, vy, vz = getElementVelocity(self.vehicle)
+        if not self.vehicle then
+            return false
+        end
+
+        local velocity = self.vehicle.velocity
 
         -- Check if Z velocity is upward at least a bit
         -- This prevents jumps from triggering when jumping *down*
-        return vz >= 0.1
+        return velocity.z >= 0.1
     end,
 
     -- If all the conditions are met to trigger the start of a stunt jump
@@ -89,23 +93,14 @@ class "c_Jump" {
         return true
     end,
 
-    getVehiclePosition = function(self)
+    -- Gets the stunt jump for the current position
+    getStuntJumpForPosition = function(self)
         if not self.vehicle then
             return nil
         end
 
-        return getElementPosition(self.vehicle)
-    end,
-
-    -- Gets the stunt jump for the current position
-    getStuntJumpForPosition = function(self)
-        local vehX, vehY, vehZ = self:getVehiclePosition()
-        -- Player not in vehicle
-        if not vehX then
-            return nil
-        end
-
-        return StuntJumps:getJumpForStartBox(vehX, vehY, vehZ)
+        local pos = self.vehicle.position
+        return StuntJumps:getJumpForStartBox(pos.x, pos.y, pos.z)
     end,
 
     isFailureStateMet = function(self)
@@ -156,15 +151,15 @@ class "c_Jump" {
                 return
             end
 
-            local vehX, vehY, vehZ = self:getVehiclePosition()
             -- Player not in vehicle
-            if not vehX then
+            if not self.vehicle then
                 self.stuntJumpState = "land"
                 self.timerCheckDelay = self.currentTime + 1000
                 return
             end
 
-            if self.currentStuntJump:isInEndBox(vehX, vehY, vehZ) and not self.currentStuntJump.hitEndTrigger then
+            local pos = self.vehicle.position
+            if self.currentStuntJump:isInEndBox(pos.x, pos.y, pos.z) and not self.currentStuntJump.hitEndTrigger then
                 self.currentStuntJump.hitEndTrigger = true
                 if not self.currentStuntJump.done then
                     playSFX("genrl", 52, 18, false)
