@@ -111,13 +111,13 @@ local current_jump_id = 1
 function createAndTeleport(_key, _state, adjust)
     current_jump_id = current_jump_id + adjust
     if current_jump_id < 1 then
-        current_jump_id = #StuntJumps.jumps
-    elseif current_jump_id > #StuntJumps.jumps then
+        current_jump_id = #StuntJumps:get("gta").jumps
+    elseif current_jump_id > #StuntJumps:get("gta").jumps then
         current_jump_id = 1
     end
 
     outputDebugString("Teleporting to jump " .. current_jump_id)
-    local jump = StuntJumps.jumps[current_jump_id]
+    local jump = StuntJumps:get("gta").jumps[current_jump_id]
 
     local startMin = jump.startBox.min
 
@@ -243,7 +243,7 @@ function onSetupCameraPosition()
 end
 
 local screenWidth, screenHeight = guiGetScreenSize()
-local crosshairTexture = dxCreateTexture("crosshair.png")
+local crosshairTexture = dxCreateTexture("assets/images/crosshair.png")
 
 function updatePlayerPosition()
     if not isFreecamActive then
@@ -368,36 +368,8 @@ function updateAlphaRenderForEdit()
 end
 setTimer(updateAlphaRenderForEdit, 500, 0)
 
-function renderAllBoundingBoxes()
-    if not StuntJumps.jumps then
-        return
-    end
-
-    for _, jump in ipairs(StuntJumps.jumps) do
-        repeat
-            if jump.done then
-                break
-            end
-
-            -- Draw start box
-            drawBoundingBox(jump.startBox.min, jump.startBox.max, tocolor(10, 10, 10, 255), tocolor(0, 200, 0, 100))
-
-            local endColor = tocolor(0, 200, 200, 100)
-
-            local currentJump = Jump.getCurrentStuntJump()
-            if currentJump and jump.id == currentJump.id and currentJump.hitEndTrigger then
-                endColor = tocolor(0, 200, 0, 100)
-            end
-
-            -- Draw end box
-            drawBoundingBox(jump.endBox.min, jump.endBox.max, tocolor(10, 10, 10, 255), endColor)
-        until true
-    end
-end
-addEventHandler("onClientPreRender", root, renderAllBoundingBoxes)
-
 -- Render bounding box during selection
-function renderBoundingBox()
+function renderEditBoundingBox()
     if isSelectingBoundingBox and corners.first then
         -- Draw temporary bounding box while selecting the second corner
         local hitX, hitY, hitZ = getCameraAimPoint()
@@ -408,7 +380,8 @@ function renderBoundingBox()
                 z = hitZ,
             }
 
-            drawBoundingBox(corners.first, tempCorner, tocolor(10, 10, 10, 255), tocolor(0, 0, 200, 100)) -- Red outline, blue transparent fill
+            BoundingBoxRenderer:drawBoundingBox(corners.first, tempCorner, tocolor(10, 10, 10, 255),
+                tocolor(0, 0, 200, 100)) -- Red outline, blue transparent fill
         end
     end
 
@@ -416,7 +389,7 @@ function renderBoundingBox()
         local visible = getActiveEditBoundingBox() ~= startBoundingBox or isBoundingBoxAlphaVisible
 
         -- Draw finalized bounding box
-        drawBoundingBox(startBoundingBox.first, startBoundingBox.second, tocolor(10, 10, 10, 255),
+        BoundingBoxRenderer:drawBoundingBox(startBoundingBox.first, startBoundingBox.second, tocolor(10, 10, 10, 255),
             tocolor(0, 200, 0, visible and 100 or 0))
     end
 
@@ -424,111 +397,11 @@ function renderBoundingBox()
         local visible = getActiveEditBoundingBox() ~= endBoundingBox or isBoundingBoxAlphaVisible
 
         -- Draw finalized bounding box
-        drawBoundingBox(endBoundingBox.first, endBoundingBox.second, tocolor(10, 10, 10, 255),
+        BoundingBoxRenderer:drawBoundingBox(endBoundingBox.first, endBoundingBox.second, tocolor(10, 10, 10, 255),
             tocolor(0, 200, 200, visible and 100 or 0))
     end
 end
-addEventHandler("onClientPreRender", root, renderBoundingBox)
-
--- Draw the bounding box (outline and fill)
-function drawBoundingBox(corner1, corner2, outlineColor, fillColor)
-    local x1, y1, z1 = corner1.x, corner1.y, corner1.z
-    local x2, y2, z2 = corner2.x, corner2.y, corner2.z
-
-    -- Calculate corners of the bounding box
-    local corners = {
-        {
-            x1,
-            y1,
-            z1,
-        },
-        {
-            x2,
-            y1,
-            z1,
-        },
-        {
-            x2,
-            y2,
-            z1,
-        },
-        {
-            x1,
-            y2,
-            z1,
-        }, -- Lower corners
-        {
-            x1,
-            y1,
-            z2,
-        },
-        {
-            x2,
-            y1,
-            z2,
-        },
-        {
-            x2,
-            y2,
-            z2,
-        },
-        {
-            x1,
-            y2,
-            z2,
-        }, -- Upper corners
-    }
-
-    local outlineThickness = 2
-    -- Draw the thick lines for the bounding box outline
-    for i = 1, 4 do
-        dxDrawLine3D(corners[i][1], corners[i][2], corners[i][3], corners[i % 4 + 1][1], corners[i % 4 + 1][2],
-            corners[i % 4 + 1][3], outlineColor, outlineThickness) -- Bottom
-        dxDrawLine3D(corners[i + 4][1], corners[i + 4][2], corners[i + 4][3], corners[i % 4 + 5][1],
-            corners[i % 4 + 5][2], corners[i % 4 + 5][3], outlineColor, outlineThickness) -- Top
-        dxDrawLine3D(corners[i][1], corners[i][2], corners[i][3], corners[i + 4][1], corners[i + 4][2],
-            corners[i + 4][3], outlineColor, outlineThickness) -- Verticals
-    end
-
-    -- Draw the faces of the bounding box
-    dxDrawTriangleFan(corners[1], corners[2], corners[3], corners[4], fillColor) -- Bottom face
-    dxDrawTriangleFan(corners[5], corners[6], corners[7], corners[8], fillColor) -- Top face
-    dxDrawTriangleFan(corners[1], corners[2], corners[6], corners[5], fillColor) -- South face
-    dxDrawTriangleFan(corners[2], corners[3], corners[7], corners[6], fillColor) -- East face
-    dxDrawTriangleFan(corners[3], corners[4], corners[8], corners[7], fillColor) -- North face
-    dxDrawTriangleFan(corners[4], corners[1], corners[5], corners[8], fillColor) -- West face
-end
-
-function dxDrawTriangleFan(c1, c2, c3, c4, c)
-    local primitive = {
-        {
-            c1[1],
-            c1[2],
-            c1[3],
-            c, -- Vertex 1
-        },
-        {
-            c2[1],
-            c2[2],
-            c2[3],
-            c, -- Vertex 2
-        },
-        {
-            c3[1],
-            c3[2],
-            c3[3],
-            c, -- Vertex 3
-        },
-        {
-            c4[1],
-            c4[2],
-            c4[3],
-            c, -- Vertex 4
-        },
-    }
-
-    dxDrawPrimitive3D("trianglefan", false, unpack(primitive))
-end
+addEventHandler("onClientPreRender", root, renderEditBoundingBox)
 
 -- Reset the bounding boxes
 function resetBoundingBoxes()

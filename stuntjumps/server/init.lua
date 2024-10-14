@@ -1,0 +1,20 @@
+function onResourceStart()
+    -- setTimer(function()
+    --     StuntJumps:exportToFile()
+    --     outputDebugString("Exporting jumps")
+
+    --     setTimer(function()
+    --         outputDebugString("Clearing jumps")
+    --         StuntJumps:clear()
+
+    --         setTimer(function()
+    --             outputDebugString("Importing jumps")
+    --             StuntJumps:importFromFile()
+    --         end, 1000, 1)
+    --     end, 1000, 1)
+    -- end, 1000, 1)
+    setTimer(function()
+        StuntJumps:load()
+    end, 1000, 1)
+end
+addEventHandler("onResourceStart", resourceRoot, onResourceStart)

@@ -1,27 +1,20 @@
 <meta>
   <info author="Lordmau5" type="script" name="stuntjumps"/>
-  <min_mta_version client="1.5.8-9.20862"/>
+  <min_mta_version client="1.6.0-9.22470"/>
+
+  <oop>true</oop>
 
   <include resource="stuntjumps_freecam"/>
 
-  <file src="crosshair.png"/>
-
   <!-- Shared -->
-  <script src="shared/class.lua" type="shared" cache="false"/>
-  <script src="shared/classes/boundingbox.lua" type="shared" cache="false"/>
-  <script src="shared/classes/stuntjump.lua" type="shared" cache="false"/>
-  <script src="shared/classes/jump_database.lua" type="shared" cache="false"/>
+  <script src="shared/**/*.lua" type="shared" cache="false"/>
 
   <!-- Server -->
-  <script src="server/og_jumps.lua" type="server"/>
-  <script src="server/spawn_vehicles.lua" type="server"/>
+  <script src="server/**/*.lua" type="server"/>
 
   <!-- Client -->
-  <script src="client/editor/editor.lua" type="client" cache="false"/>
-  <script src="client/editor/boundingbox_editor.lua" type="client" cache="false"/>
+  <script src="client/**/*.lua" type="client" cache="false"/>
 
-  <script src="client/jump.lua" type="client" cache="false"/>
-
-  <script src="c_stuntjumps.lua" type="client" cache="false"/>
-  <script src="s_stuntjumps.lua" type="server"/>
+  <!-- Assets -->
+  <file src="assets/**/*"/>
 </meta>

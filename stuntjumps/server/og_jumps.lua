@@ -2002,18 +2002,15 @@ end
 
 local deciphered_jumps = {}
 
+local gtaJumps = JumpPack("gta")
+
 for id, jump in ipairs(og_jumps) do
     local tempJump = decipherJump(jump)
-    StuntJumps:add("gta_" .. id, tempJump.startBox, tempJump.endBox, tempJump.camera, tempJump.reward)
+    gtaJumps:add("gta_" .. id, tempJump.startBox, tempJump.endBox, tempJump.camera, tempJump.reward)
 end
+
+-- gtaJumps:exportToFile()
 
 function getOGJumps()
     return deciphered_jumps
 end
-
-function onClientRequestJumps()
-    outputDebugString("Requesting jumps")
-    triggerLatentClientEvent(source, "receiveJumps", source, StuntJumps.jumps)
-end
-addEvent("requestJumps", true)
-addEventHandler("requestJumps", root, onClientRequestJumps)

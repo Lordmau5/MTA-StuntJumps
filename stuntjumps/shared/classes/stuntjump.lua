@@ -9,15 +9,19 @@ class "StuntJump" {
     end,
 
     setupBlip = function(self)
-        if isElement(self.blip) then
-            destroyElement(self.blip)
-        end
+        self:destroyBlip()
 
         local centerX = (self.startBox.min.x + self.startBox.max.x) / 2
         local centerY = (self.startBox.min.y + self.startBox.max.y) / 2
         local centerZ = (self.startBox.min.z + self.startBox.max.z) / 2
 
         self.blip = createBlip(centerX, centerY, centerZ, 0, 1, 0, 255, 255, 255, 0, 65535)
+    end,
+
+    destroyBlip = function(self)
+        if isElement(self.blip) then
+            destroyElement(self.blip)
+        end
     end,
 
     isInStartBox = function(self, x, y, z)
@@ -35,9 +39,7 @@ class "StuntJump" {
     setJumpDone = function(self, done)
         self.done = done == nil and true or done
 
-        if isElement(self.blip) then
-            destroyElement(self.blip)
-        end
+        self:destroyBlip()
 
         -- If we reset to not done, recreate the blip
         if not self.done then
