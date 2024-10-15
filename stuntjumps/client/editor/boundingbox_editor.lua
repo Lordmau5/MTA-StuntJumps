@@ -4,17 +4,17 @@
 -- + and - to move it up or down (or scale it up or down)
 class "c_BoundingBoxEditor" {
     constructor = function(self)
-        addEventHandler("onClientKey", root, function(...)
-            self:onKeyPressed(...)
+        addEventHandler("onClientKey", root, function(button, press)
+            self:onKeyPressed(button, press)
         end)
     end,
 
     onKeyPressed = function(self, button, press)
-        if not press or not isEditModeActive() then
+        if not press or not Editor:isEditModeActive() then
             return
         end
 
-        local editBoundingBox, boxType = getActiveEditBoundingBox()
+        local editBoundingBox, boxType = Editor:getActiveEditBoundingBox()
         if not editBoundingBox then
             return
         end
@@ -100,43 +100,43 @@ class "c_BoundingBoxEditor" {
         -- Move all corners of the box when not scaling
         if not isScaling then
             if direction == "up" then
-                box.first.z = box.first.z + moveAmount
-                box.second.z = box.second.z + moveAmount
+                box.min.z = box.min.z + moveAmount
+                box.max.z = box.max.z + moveAmount
             elseif direction == "down" then
-                box.first.z = box.first.z - moveAmount
-                box.second.z = box.second.z - moveAmount
+                box.min.z = box.min.z - moveAmount
+                box.max.z = box.max.z - moveAmount
             elseif direction == "north" then
-                box.first.y = box.first.y + moveAmount
-                box.second.y = box.second.y + moveAmount
+                box.min.y = box.min.y + moveAmount
+                box.max.y = box.max.y + moveAmount
             elseif direction == "south" then
-                box.first.y = box.first.y - moveAmount
-                box.second.y = box.second.y - moveAmount
+                box.min.y = box.min.y - moveAmount
+                box.max.y = box.max.y - moveAmount
             elseif direction == "east" then
-                box.first.x = box.first.x + moveAmount
-                box.second.x = box.second.x + moveAmount
+                box.min.x = box.min.x + moveAmount
+                box.max.x = box.max.x + moveAmount
             elseif direction == "west" then
-                box.first.x = box.first.x - moveAmount
-                box.second.x = box.second.x - moveAmount
+                box.min.x = box.min.x - moveAmount
+                box.max.x = box.max.x - moveAmount
             end
         else
             -- If scaling, adjust only the relevant corners
             if direction == "up" then
-                box.second.z = box.second.z + scaleFactor
+                box.max.z = box.max.z + scaleFactor
             elseif direction == "down" then
-                box.second.z = box.second.z - scaleFactor
+                box.max.z = box.max.z - scaleFactor
             elseif direction == "north" then
-                box.second.y = box.second.y + scaleFactor
+                box.max.y = box.max.y + scaleFactor
             elseif direction == "south" then
-                box.second.y = box.second.y - scaleFactor
+                box.max.y = box.max.y - scaleFactor
             elseif direction == "east" then
-                box.second.x = box.second.x + scaleFactor
+                box.max.x = box.max.x + scaleFactor
             elseif direction == "west" then
-                box.second.x = box.second.x - scaleFactor
+                box.max.x = box.max.x - scaleFactor
             end
         end
 
         -- Always call this to update the bounding box in the UI
-        updateEditBoundingBox(box, boxType)
+        Editor:updateEditBoundingBox(box, boxType)
     end,
 }
 
