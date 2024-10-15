@@ -89,33 +89,39 @@ class "ClientInit" {
         local allPacks = StuntJumps:getAll()
 
         for _, pack in pairs(allPacks) do
-            for _2, jump in pairs(pack.jumps) do
-                repeat
-                    if jump.done then
-                        break
-                    end
+            repeat
+                if pack.name == "editor" then
+                    break
+                end
 
-                    local startColor = tocolor(0, 200, 0, 100)
-                    if not Jump:isVehicleDrivingJumpSpeed() then
-                        startColor = tocolor(200, 0, 0, 100)
-                    end
+                for _2, jump in pairs(pack.jumps) do
+                    repeat
+                        if jump.done then
+                            break
+                        end
 
-                    -- Draw start box
-                    BoundingBoxRenderer:drawBoundingBox(jump.startBox.min, jump.startBox.max, tocolor(10, 10, 10, 255),
-                        startColor)
+                        local startColor = tocolor(0, 200, 0, 100)
+                        if not Jump:isVehicleDrivingJumpSpeed() then
+                            startColor = tocolor(200, 0, 0, 100)
+                        end
 
-                    local endColor = tocolor(0, 200, 200, 100)
+                        -- Draw start box
+                        BoundingBoxRenderer:drawBoundingBox(jump.startBox.min, jump.startBox.max,
+                            tocolor(10, 10, 10, 255), startColor)
 
-                    local currentJump = Jump:getCurrentStuntJump()
-                    if currentJump and jump.id == currentJump.id and currentJump.hitEndTrigger then
-                        endColor = tocolor(0, 200, 0, 100)
-                    end
+                        local endColor = tocolor(0, 200, 200, 100)
 
-                    -- Draw end box
-                    BoundingBoxRenderer:drawBoundingBox(jump.endBox.min, jump.endBox.max, tocolor(10, 10, 10, 255),
-                        endColor)
-                until true
-            end
+                        local currentJump = Jump:getCurrentStuntJump()
+                        if currentJump and jump.id == currentJump.id and currentJump.hitEndTrigger then
+                            endColor = tocolor(0, 200, 0, 100)
+                        end
+
+                        -- Draw end box
+                        BoundingBoxRenderer:drawBoundingBox(jump.endBox.min, jump.endBox.max, tocolor(10, 10, 10, 255),
+                            endColor)
+                    until true
+                end
+            until true
         end
     end,
 }

@@ -1,7 +1,9 @@
 -- info point / start point to spawn an NRG at, maybe also camera position in the air to preview the jump?
 -- also an easy spawn point / setting an active jump to "practice"
 -- menu to toggle falling off the bike
---
+-- GUI checkbox to save the camera position with lookAtX, Y and Z (or if it should follow the vehicle / player)
+-- list in the GUI to select which jumps to teleport to / edit / add etc.
+-- 
 class "c_Editor" {
     constructor = function(self)
         self.editModeActive = false
@@ -35,7 +37,8 @@ class "c_Editor" {
         self.activeEditBoundingBox = {}
         self.isBoundingBoxAlphaVisible = true
 
-        self.jumpPack = JumpPack("editor")
+        self.jumpPack = StuntJumps:add("editor")
+        self.editJump = nil
 
         --- Debug
         self.current_jump_id = 1
@@ -153,19 +156,11 @@ class "c_Editor" {
     end,
 
     getStartingBoundingBox = function(self)
-        if not self.startBoundingBox then
-            return nil -- Return nil if the bounding box hasn't been set
-        end
-
-        return getBoundingBox(startBoundingBox.first, startBoundingBox.second)
+        return (self.jump and self.jump.startBox) or self.startBoundingBox
     end,
 
     getEndingBoundingBox = function(self)
-        if not self.endBoundingBox then
-            return nil -- Return nil if the bounding box hasn't been set
-        end
-
-        return getBoundingBox(endBoundingBox.first, endBoundingBox.second)
+        return (self.jump and self.jump.endBox) or self.endBoundingBox
     end,
 
     -- Toggles freecam mode on and off
@@ -270,6 +265,13 @@ class "c_Editor" {
             lookAtZ = lookAtZ,
         }
         outputChatBox("Camera position set: " .. camX .. ", " .. camY .. ", " .. camZ)
+
+        -- Jump finalization
+        if not self.jump then
+            self.jump = self.jumpPack:add("edit", self.startBoundingBox, self.endBoundingBox, self.cameraPosition, 500)
+        end
+
+        self.jump.camera = self.cameraPosition
     end,
 
     -- Bounding box corner updater
@@ -346,9 +348,17 @@ class "c_Editor" {
             if self.isSelectingEndingBox then
                 self.endBoundingBox = self:finalizeBoundingBox()
 
+                if self.jump then
+                    self.jump.endBox = self.endBoundingBox
+                end
+
                 self.gui.setupCameraBtn.enabled = true
             else
                 self.startBoundingBox = self:finalizeBoundingBox()
+
+                if self.jump then
+                    self.jump.startBox = self.startBoundingBox
+                end
 
                 self.gui.setupEndBtn.enabled = true
             end
@@ -393,28 +403,48 @@ class "c_Editor" {
             end
         end
 
-        if self.startBoundingBox then
-            local visible = self:getActiveEditBoundingBox() ~= self.startBoundingBox or self.isBoundingBoxAlphaVisible
+        if self.startBoundingBox or self.jump then
+            local box = self:getStartingBoundingBox()
+
+            local visible = self:getActiveEditBoundingBox() ~= box or self.isBoundingBoxAlphaVisible
+            local visibleAlpha = visible and 100 or 0
+            if self.jump and self.jump.done then
+                visibleAlpha = visible and 20 or 0
+            end
+
+            local startColor = tocolor(0, 200, 0, visibleAlpha)
+            if not Jump:isVehicleDrivingJumpSpeed() then
+                startColor = tocolor(200, 0, 0, visibleAlpha)
+            end
 
             -- Draw finalized bounding box
-            BoundingBoxRenderer:drawBoundingBox(self.startBoundingBox.min, self.startBoundingBox.max,
-                tocolor(10, 10, 10, 255), tocolor(0, 200, 0, visible and 100 or 0))
+            BoundingBoxRenderer:drawBoundingBox(box.min, box.max, tocolor(10, 10, 10, 255), startColor)
         end
 
-        if self.endBoundingBox then
-            local visible = self:getActiveEditBoundingBox() ~= self.endBoundingBox or self.isBoundingBoxAlphaVisible
+        if self.endBoundingBox or self.jump then
+            local box = self:getEndingBoundingBox()
+
+            local visible = self:getActiveEditBoundingBox() ~= box or self.isBoundingBoxAlphaVisible
+            local visibleAlpha = visible and 100 or 0
+            if self.jump and self.jump.done then
+                visibleAlpha = visible and 20 or 0
+            end
+
+            local endColor = tocolor(0, 200, 200, visibleAlpha)
+            if self.jump and self.jump.hitEndTrigger then
+                endColor = tocolor(0, 200, 0, visibleAlpha)
+            end
 
             -- Draw finalized bounding box
-            BoundingBoxRenderer:drawBoundingBox(self.endBoundingBox.min, self.endBoundingBox.max,
-                tocolor(10, 10, 10, 255), tocolor(0, 200, 200, visible and 100 or 0))
+            BoundingBoxRenderer:drawBoundingBox(box.min, box.max, tocolor(10, 10, 10, 255), endColor)
         end
     end,
 
     getActiveEditBoundingBox = function(self)
         if self.activeEditBoundingBox == 1 then
-            return self.startBoundingBox, "start"
+            return self:getStartingBoundingBox(), "start"
         elseif self.activeEditBoundingBox == 2 then
-            return self.endBoundingBox, "end"
+            return self:getEndingBoundingBox(), "end"
         end
 
         return nil

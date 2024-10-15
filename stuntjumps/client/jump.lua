@@ -200,6 +200,11 @@ class "c_Jump" {
             local cam = self.currentStuntJump.camera
             if cam and cam.x then
                 local pos = localPlayer.position
+
+                if cam.lookAtX then
+                    pos = Vector3(cam.lookAtX, cam.lookAtY, cam.lookAtZ)
+                end
+
                 setCameraMatrix(cam.x, cam.y, cam.z, pos.x, pos.y, pos.z)
             end
         end
