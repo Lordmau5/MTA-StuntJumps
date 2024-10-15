@@ -1,8 +1,4 @@
 class "c_BoundingBoxRenderer" {
-    constructor = function(self)
-
-    end,
-
     dxDrawTriangleFan = function(self, c1, c2, c3, c4, c)
         local primitive = {
             {

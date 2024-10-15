@@ -9,7 +9,10 @@ class "c_Editor" {
         self.isSelectingBoundingBox = false
         self.isSelectingEndingBox = false
 
-        self.crosshairTexture = dxCreateTexture("assets/images/crosshair.png")
+        self.crosshair = DxRenderTarget(50, 50, true)
+        if self.crosshair then
+            self:updateCrosshairRender()
+        end
 
         self.gui = {
             isActive = false,
@@ -32,6 +35,16 @@ class "c_Editor" {
         self.activeEditBoundingBox = {}
         self.isBoundingBoxAlphaVisible = true
 
+        self.jumpPack = JumpPack("editor")
+
+        --- Debug
+        self.current_jump_id = 1
+        bindKey("9", "down", function()
+            self:createAndTeleport(-1)
+        end)
+        bindKey("0", "down", function()
+            self:createAndTeleport(1)
+        end)
         ---
 
         addEventHandler("onClientResourceStart", resourceRoot, function()
@@ -68,14 +81,33 @@ class "c_Editor" {
         end) -- Open/close the GUI with H
     end,
 
-    onStart = function(self)
-        self.gui.window = guiCreateWindow(0.4, 0.4, 0.2, 0.3, "Editor Options", true)
+    updateCrosshairRender = function(self)
+        if not self.crosshair then
+            return
+        end
 
-        self.gui.setupStartBtn = guiCreateButton(0.1, 0.2, 0.8, 0.15, "Setup Starting Bounding Box", true,
-            self.gui.window)
-        self.gui.setupEndBtn = guiCreateButton(0.1, 0.4, 0.8, 0.15, "Setup Ending Bounding Box", true, self.gui.window)
-        self.gui.setupCameraBtn = guiCreateButton(0.1, 0.6, 0.8, 0.15, "Setup Camera Position", true, self.gui.window)
-        self.gui.closeBtn = guiCreateButton(0.1, 0.8, 0.8, 0.15, "Close", true, self.gui.window)
+        dxSetRenderTarget(self.crosshair)
+        dxSetBlendMode("modulate_add")
+
+        local texture = DxTexture("assets/images/crosshair.png")
+        dxDrawImage(0, 0, 50, 50, texture)
+
+        dxSetBlendMode("blend")
+        dxSetRenderTarget()
+    end,
+
+    onStart = function(self)
+        self.gui.window = GuiWindow(0.4, 0.4, 0.2, 0.3, "Editor Options", true)
+
+        self.gui.setupStartBtn = GuiButton(0.1, 0.2, 0.8, 0.15, "Setup Starting Bounding Box", true, self.gui.window)
+
+        self.gui.setupEndBtn = GuiButton(0.1, 0.4, 0.8, 0.15, "Setup Ending Bounding Box", true, self.gui.window)
+        self.gui.setupEndBtn.enabled = false
+
+        self.gui.setupCameraBtn = GuiButton(0.1, 0.6, 0.8, 0.15, "Setup Camera Position", true, self.gui.window)
+        self.gui.setupCameraBtn.enabled = false
+
+        self.gui.closeBtn = GuiButton(0.1, 0.8, 0.8, 0.15, "Close", true, self.gui.window)
 
         addEventHandler("onClientGUIClick", self.gui.setupStartBtn, function()
             self:onSetupStartBoundingBox()
@@ -90,10 +122,10 @@ class "c_Editor" {
             self:closeGui()
         end, false)
 
-        guiSetVisible(self.gui.window, false)
+        self.gui.window.visible = false
 
         -- Ped knocked off bike
-        setPedCanBeKnockedOffBike(localPlayer, false)
+        localPlayer:setCanBeKnockedOffBike(false)
     end,
 
     onClientPlayerDamage = function(self)
@@ -105,12 +137,11 @@ class "c_Editor" {
             return
         end
 
-        local camX, camY, camZ = getCameraMatrix()
-        setElementPosition(localPlayer, camX, camY, camZ)
+        localPlayer.position = Camera.position
 
         -- Draw crosshair
-        local screenWidth, screenHeight = guiGetScreenSize()
-        dxDrawImage(screenWidth / 2 - 25, screenHeight / 2 - 25, 50, 50, self.crosshairTexture)
+        local screenWidth, screenHeight = GuiElement.getScreenSize()
+        dxDrawImage(screenWidth / 2 - 25, screenHeight / 2 - 25, 50, 50, self.crosshair)
     end,
 
     isEditModeActive = function(self)
@@ -147,19 +178,18 @@ class "c_Editor" {
 
         if self.editModeActive then
             -- Entering freecam, hide player and HUD
-            local x, y, z = getCameraMatrix()
-            showChat(false)
-            setElementFrozen(localPlayer, true)
-            setElementAlpha(localPlayer, 0)
+            localPlayer.frozen = true
+            localPlayer.alpha = 0
 
-            exports.stuntjumps_freecam:setFreecamEnabled(x, y, z)
+            local cam = Camera.position
+            exports.stuntjumps_freecam:setFreecamEnabled(cam.x, cam.y, cam.z)
         else
             -- Leaving freecam, restore normal gameplay view
-            setCameraTarget(localPlayer)
-            showChat(true)
-            setElementFrozen(localPlayer, false)
+            Camera.target = localPlayer
+            localPlayer.frozen = false
+            localPlayer.alpha = 255
+
             self:closeGui()
-            setElementAlpha(localPlayer, 255)
             self.activeEditBoundingBox = 0
 
             exports.stuntjumps_freecam:setFreecamDisabled()
@@ -186,14 +216,14 @@ class "c_Editor" {
     -- Show the GUI
     showGui = function(self)
         self.gui.isActive = true
-        guiSetVisible(self.gui.window, true)
+        self.gui.window.visible = true
         showCursor(true)
     end,
 
     -- Close the GUI
     closeGui = function(self)
         self.gui.isActive = false
-        guiSetVisible(self.gui.window, false)
+        self.gui.window.visible = false
         showCursor(false)
     end,
 
@@ -259,11 +289,11 @@ class "c_Editor" {
 
     -- Get the point where the camera is aiming at the ground
     getCameraAimPoint = function(self)
-        local camX, camY, camZ = getCameraMatrix()
-        local screenWidth, screenHeight = guiGetScreenSize()
+        local cam = Camera.position
+        local screenWidth, screenHeight = GuiElement.getScreenSize()
         local targetX, targetY, targetZ = getWorldFromScreenPosition(screenWidth / 2, screenHeight / 2, 1000)
 
-        local hit, hitX, hitY, hitZ = processLineOfSight(camX, camY, camZ, targetX, targetY, targetZ, true, false,
+        local hit, hitX, hitY, hitZ = processLineOfSight(cam.x, cam.y, cam.z, targetX, targetY, targetZ, true, false,
             false, true, false, false, false, false)
 
         if hit then
@@ -304,6 +334,7 @@ class "c_Editor" {
                 y = hitY,
                 z = hitZ,
             }
+
             outputChatBox("First corner set.")
         elseif not self.corners.second then
             self.corners.second = {
@@ -314,8 +345,12 @@ class "c_Editor" {
 
             if self.isSelectingEndingBox then
                 self.endBoundingBox = self:finalizeBoundingBox()
+
+                self.gui.setupCameraBtn.enabled = true
             else
                 self.startBoundingBox = self:finalizeBoundingBox()
+
+                self.gui.setupEndBtn.enabled = true
             end
 
             self.isSelectingBoundingBox = false
@@ -396,38 +431,31 @@ class "c_Editor" {
     updateAlphaRenderForEdit = function(self)
         self.isBoundingBoxAlphaVisible = not self.isBoundingBoxAlphaVisible
     end,
+
+    createAndTeleport = function(self, adjust)
+        self.current_jump_id = self.current_jump_id + adjust
+        if self.current_jump_id < 1 then
+            self.current_jump_id = #StuntJumps:get("gta").jumps
+        elseif self.current_jump_id > #StuntJumps:get("gta").jumps then
+            self.current_jump_id = 1
+        end
+
+        outputDebugString("Teleporting to jump " .. self.current_jump_id)
+        local jump = StuntJumps:get("gta").jumps["gta_" .. self.current_jump_id]
+
+        local startMin = jump.startBox.min
+
+        local element = localPlayer.vehicle or localPlayer
+        if self:isEditModeActive() then
+            exports.stuntjumps_freecam:setFreecamDisabled()
+
+            element.position = Vector3(startMin.x, startMin.y, startMin.z + 10)
+
+            exports.stuntjumps_freecam:setFreecamEnabled(startMin.x, startMin.y, startMin.z + 10)
+        else
+            element.position = Vector3(startMin.x, startMin.y, startMin.z + 2)
+        end
+    end,
 }
 
 Editor = c_Editor()
-
--- local current_jump_id = 1
--- function createAndTeleport(_key, _state, adjust)
---     current_jump_id = current_jump_id + adjust
---     if current_jump_id < 1 then
---         current_jump_id = #StuntJumps:get("gta").jumps
---     elseif current_jump_id > #StuntJumps:get("gta").jumps then
---         current_jump_id = 1
---     end
-
---     outputDebugString("Teleporting to jump " .. current_jump_id)
---     local jump = StuntJumps:get("gta").jumps[current_jump_id]
-
---     local startMin = jump.startBox.min
-
---     if isEditModeActive() then
---         exports.stuntjumps_freecam:setFreecamDisabled()
-
---         setElementPosition(localPlayer, startMin.x, startMin.y, startMin.z + 10)
-
---         exports.stuntjumps_freecam:setFreecamEnabled(startMin.x, startMin.y, startMin.z + 10)
---     else
---         setElementPosition(getPedOccupiedVehicle(localPlayer) or localPlayer, startMin.x, startMin.y, startMin.z + 2)
---     end
-
---     -- startBoundingBox = jump.startBox
---     -- endBoundingBox = jump.endBox
-
---     -- cameraPosition = jump.camera
--- end
--- bindKey("9", "down", createAndTeleport, -1)
--- bindKey("0", "down", createAndTeleport, 1)

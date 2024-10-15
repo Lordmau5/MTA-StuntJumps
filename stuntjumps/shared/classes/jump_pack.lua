@@ -4,14 +4,14 @@ class "JumpPack" {
         self.jumps = {}
 
         if jumps ~= nil then
-            for _, jump in ipairs(jumps) do
+            for _, jump in pairs(jumps) do
                 self:add(jump.id, jump.startBox, jump.endBox, jump.camera, jump.reward)
             end
         end
     end,
 
     destructor = function(self)
-        for _, jump in ipairs(self.jumps) do
+        for _, jump in pairs(self.jumps) do
             jump:destroyBlip()
         end
     end,
@@ -20,7 +20,7 @@ class "JumpPack" {
         self.jumps = {}
 
         local decodedData = json.decode(json_data)
-        for _, jumpData in ipairs(decodedData) do
+        for _, jumpData in pairs(decodedData) do
             self:add(jumpData.id, jumpData.startBox, jumpData.endBox, jumpData.camera, jumpData.reward)
         end
     end,
@@ -36,14 +36,14 @@ class "JumpPack" {
 
     export = function(self)
         local exportTable = {}
-        for _, jump in ipairs(self.jumps) do
-            table.insert(exportTable, {
+        for id, jump in pairs(self.jumps) do
+            exportTable[id] = {
                 id = jump.id,
                 startBox = jump.startBox,
                 endBox = jump.endBox,
                 camera = jump.camera,
                 reward = jump.reward,
-            })
+            }
         end
 
         return json.encode(exportTable)
@@ -62,21 +62,29 @@ class "JumpPack" {
     end,
 
     setupBlips = function(self)
-        for _, jump in ipairs(self.jumps) do
+        for _, jump in pairs(self.jumps) do
             jump:setupBlip()
         end
     end,
 
     add = function(self, id, startBox, endBox, camera, reward)
+        if self.jumps[id] ~= nil then
+            return false
+        end
+
         local jump = StuntJump(id, startBox, endBox, camera, reward)
 
-        table.insert(self.jumps, jump)
+        self.jumps[id] = jump
 
         return jump
     end,
 
+    get = function(self, id)
+        return self.jumps[id]
+    end,
+
     getJumpForStartBox = function(self, x, y, z)
-        for _, jump in ipairs(self.jumps) do
+        for _, jump in pairs(self.jumps) do
             if jump:isInStartBox(x, y, z) then
                 return jump
             end

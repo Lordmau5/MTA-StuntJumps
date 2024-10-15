@@ -30,15 +30,8 @@ class "c_StuntJumps" {
         return self.packs[name]
     end,
 
-    getAllJumps = function(self)
-        local allJumps = {}
-        for _, pack in pairs(self.packs) do
-            for _, jump in ipairs(pack.jumps) do
-                table.insert(allJumps, jump)
-            end
-        end
-
-        return allJumps
+    getAll = function(self)
+        return self.packs
     end,
 
     load = function(self)
