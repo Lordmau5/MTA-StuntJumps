@@ -1961,56 +1961,51 @@ local og_jumps = {
     },
 }
 
-function decipherJump(jump)
-    -- Inline bounding box setup
-    local function setMinMax(min, max)
+class "c_OG_Jumps" {
+    constructor = function(self)
+        self.ogJumps = JumpPack("gta")
+    end,
+
+    decipherJump = function(self, jump)
+        -- Create bounding box for the starting area
+        local boundingBoxStart = BoundingBox.fromCorners({
+            x = jump.start.x - jump.start_radius.x,
+            y = jump.start.y - jump.start_radius.y,
+            z = jump.start.z - jump.start_radius.z,
+        }, {
+            x = jump.start.x + jump.start_radius.x,
+            y = jump.start.y + jump.start_radius.y,
+            z = jump.start.z + jump.start_radius.z,
+        })
+
+        -- Create bounding box for the trigger area
+        local boundingBoxTrigger = BoundingBox.fromCorners({
+            x = jump.trigger.x - jump.trigger_radius.x,
+            y = jump.trigger.y - jump.trigger_radius.y,
+            z = jump.trigger.z - jump.trigger_radius.z,
+        }, {
+            x = jump.trigger.x + jump.trigger_radius.x,
+            y = jump.trigger.y + jump.trigger_radius.y,
+            z = jump.trigger.z + jump.trigger_radius.z,
+        })
+
         return {
-            min = min,
-            max = max,
+            startBox = boundingBoxStart,
+            endBox = boundingBoxTrigger,
+            camera = jump.camera,
+            reward = jump.reward,
         }
-    end
+    end,
 
-    -- Create bounding box for the starting area
-    local boundingBoxStart = setMinMax({
-        x = jump.start.x - jump.start_radius.x,
-        y = jump.start.y - jump.start_radius.y,
-        z = jump.start.z - jump.start_radius.z,
-    }, {
-        x = jump.start.x + jump.start_radius.x,
-        y = jump.start.y + jump.start_radius.y,
-        z = jump.start.z + jump.start_radius.z,
-    })
+    decipherAndSave = function(self)
+        for id, jump in ipairs(og_jumps) do
+            local tempJump = self:decipherJump(jump)
+            self.ogJumps:add("gta_" .. id, tempJump.startBox, tempJump.endBox, tempJump.camera, tempJump.reward)
+        end
 
-    -- Create bounding box for the trigger area
-    local boundingBoxTrigger = setMinMax({
-        x = jump.trigger.x - jump.trigger_radius.x,
-        y = jump.trigger.y - jump.trigger_radius.y,
-        z = jump.trigger.z - jump.trigger_radius.z,
-    }, {
-        x = jump.trigger.x + jump.trigger_radius.x,
-        y = jump.trigger.y + jump.trigger_radius.y,
-        z = jump.trigger.z + jump.trigger_radius.z,
-    })
+        self.ogJumps:exportToFile()
+    end,
+}
 
-    return {
-        startBox = boundingBoxStart,
-        endBox = boundingBoxTrigger,
-        camera = jump.camera,
-        reward = jump.reward,
-    }
-end
-
-local deciphered_jumps = {}
-
-local gtaJumps = JumpPack("gta")
-
-for id, jump in ipairs(og_jumps) do
-    local tempJump = decipherJump(jump)
-    gtaJumps:add("gta_" .. id, tempJump.startBox, tempJump.endBox, tempJump.camera, tempJump.reward)
-end
-
--- gtaJumps:exportToFile()
-
-function getOGJumps()
-    return deciphered_jumps
-end
+OG_Jumps = c_OG_Jumps()
+-- OG_Jumps:decipherAndSave()

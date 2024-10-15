@@ -1,8 +1,8 @@
 class "StuntJump" {
     constructor = function(self, id, startBox, endBox, camera, reward)
         self.id = id
-        self.startBox = BoundingBox(startBox.min, startBox.max)
-        self.endBox = BoundingBox(endBox.min, endBox.max)
+        self.startBox = startBox.__class == "BoundingBox" and startBox or BoundingBox(startBox.min, startBox.max)
+        self.endBox = endBox.__class == "BoundingBox" and endBox or BoundingBox(endBox.min, endBox.max)
         self.camera = camera
         self.reward = reward
         self.done = false
