@@ -103,6 +103,8 @@ function toggleGui()
     else
         isSelectingBoundingBox = false
         showGui()
+
+        activeEditBoundingBox = 0
     end
 end
 bindKey("H", "down", toggleGui) -- Open/close the GUI with H

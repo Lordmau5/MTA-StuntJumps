@@ -1,89 +1,118 @@
-function onClientResourceStart()
-    clearDebugBox()
+class "ClientInit" {
+    constructor = function(self)
+        self.spawnCooldown = 0
 
-    setGameSpeed(1)
-    setFPSLimit(60)
+        addEventHandler("onClientResourceStart", resourceRoot, function()
+            self:onStart()
+        end)
 
-    setPlayerHudComponentVisible("all", false)
+        addEventHandler("onClientResourceStop", resourceRoot, function()
+            self:onStop()
+        end)
 
-    setPlayerHudComponentVisible("radar", true)
+        setTimer(function()
+            self:ensureNightTime()
+        end, 500, 0)
 
-    setPedCanBeKnockedOffBike(localPlayer, false)
+        bindKey("n", "down", function()
+            self:spawnVehicle("nrg")
+        end)
+        bindKey("i", "down", function()
+            self:spawnVehicle("packer")
+        end)
 
-    -- triggerLatentServerEvent("requestJumps", localPlayer)
-end
-addEventHandler("onClientResourceStart", resourceRoot, onClientResourceStart)
+        bindKey("r", "down", function()
+            self:resetStuntJumps()
+        end)
 
-function onClientResourceStop()
-    setPlayerHudComponentVisible("all", true)
-    setPedCanBeKnockedOffBike(localPlayer, true)
-end
-addEventHandler("onClientResourceStop", resourceRoot, onClientResourceStop)
+        addEvent("receiveJumpPacks", true)
+        addEventHandler("receiveJumpPacks", resourceRoot, function(packs)
+            self:receiveJumpPacks(packs)
+        end)
 
-function ensureNightTime()
-    setTime(0, 0)
-end
-setTimer(ensureNightTime, 500, 0)
+        addEventHandler("onClientPreRender", root, function()
+            self:renderAllBoundingBoxes()
+        end)
+    end,
 
-local cooldown = 0
-function spawnVehicle(_key, _state, type)
-    local currentTime = getTickCount()
-    if currentTime < cooldown then
-        return
-    end
+    onStart = function(self)
+        clearDebugBox()
 
-    cooldown = currentTime + 3000
+        setGameSpeed(1)
+        setFPSLimit(60)
 
-    triggerServerEvent("spawnVehicle", localPlayer, type)
-end
-bindKey("n", "down", spawnVehicle, "nrg")
-bindKey("i", "down", spawnVehicle, "packer")
+        setPlayerHudComponentVisible("all", false)
 
-function resetStuntJumps()
-    for _, jump in ipairs(StuntJumps:getAllJumps()) do
-        jump:setJumpDone(false)
-    end
-end
-bindKey("r", "down", resetStuntJumps)
+        setPlayerHudComponentVisible("radar", true)
 
-function receiveJumpPacks(packs)
-    outputDebugString("Received " .. #tablex.values(packs) .. " jump packs")
-    for name, _pack in pairs(packs) do
-        local pack = StuntJumps:add(name, _pack.jumps)
-        pack:setupBlips()
-    end
-end
-addEvent("receiveJumpPacks", true)
-addEventHandler("receiveJumpPacks", resourceRoot, receiveJumpPacks)
+        setPedCanBeKnockedOffBike(localPlayer, false)
+    end,
 
-function renderAllBoundingBoxes()
-    local allJumps = StuntJumps:getAllJumps()
+    onStop = function(self)
+        setPlayerHudComponentVisible("all", true)
 
-    for _, jump in ipairs(allJumps) do
-        repeat
-            if jump.done then
-                break
-            end
+        setPedCanBeKnockedOffBike(localPlayer, true)
+    end,
 
-            local startColor = tocolor(0, 200, 0, 100)
-            if not Jump:isVehicleDrivingJumpSpeed() then
-                startColor = tocolor(200, 0, 0, 100)
-            end
+    ensureNightTime = function()
+        setTime(0, 0)
+    end,
 
-            -- Draw start box
-            BoundingBoxRenderer:drawBoundingBox(jump.startBox.min, jump.startBox.max, tocolor(10, 10, 10, 255),
-                startColor)
+    spawnVehicle = function(self, type)
+        local currentTime = getTickCount()
+        if currentTime < self.spawnCooldown then
+            return
+        end
 
-            local endColor = tocolor(0, 200, 200, 100)
+        self.spawnCooldown = currentTime + 3000
 
-            local currentJump = Jump:getCurrentStuntJump()
-            if currentJump and jump.id == currentJump.id and currentJump.hitEndTrigger then
-                endColor = tocolor(0, 200, 0, 100)
-            end
+        triggerServerEvent("spawnVehicle", localPlayer, type)
+    end,
 
-            -- Draw end box
-            BoundingBoxRenderer:drawBoundingBox(jump.endBox.min, jump.endBox.max, tocolor(10, 10, 10, 255), endColor)
-        until true
-    end
-end
-addEventHandler("onClientPreRender", root, renderAllBoundingBoxes)
+    resetStuntJumps = function(self)
+        for _, jump in ipairs(StuntJumps:getAllJumps()) do
+            jump:setJumpDone(false)
+        end
+    end,
+
+    receiveJumpPacks = function(self, packs)
+        outputDebugString("Received " .. #tablex.values(packs) .. " jump packs")
+        for name, _pack in pairs(packs) do
+            local pack = StuntJumps:add(name, _pack.jumps)
+            pack:setupBlips()
+        end
+    end,
+
+    renderAllBoundingBoxes = function(self)
+        local allJumps = StuntJumps:getAllJumps()
+
+        for _, jump in ipairs(allJumps) do
+            repeat
+                if jump.done then
+                    break
+                end
+
+                local startColor = tocolor(0, 200, 0, 100)
+                if not Jump:isVehicleDrivingJumpSpeed() then
+                    startColor = tocolor(200, 0, 0, 100)
+                end
+
+                -- Draw start box
+                BoundingBoxRenderer:drawBoundingBox(jump.startBox.min, jump.startBox.max, tocolor(10, 10, 10, 255),
+                    startColor)
+
+                local endColor = tocolor(0, 200, 200, 100)
+
+                local currentJump = Jump:getCurrentStuntJump()
+                if currentJump and jump.id == currentJump.id and currentJump.hitEndTrigger then
+                    endColor = tocolor(0, 200, 0, 100)
+                end
+
+                -- Draw end box
+                BoundingBoxRenderer:drawBoundingBox(jump.endBox.min, jump.endBox.max, tocolor(10, 10, 10, 255), endColor)
+            until true
+        end
+    end,
+}
+
+ClientInit()
