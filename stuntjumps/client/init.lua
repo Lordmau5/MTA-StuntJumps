@@ -1,3 +1,6 @@
+-- Load DGS imports
+loadstring(exports.dgs:dgsImportFunction())()
+
 class "ClientInit" {
     constructor = function(self)
         self.spawnCooldown = 0

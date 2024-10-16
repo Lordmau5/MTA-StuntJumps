@@ -5,6 +5,7 @@
   <oop>true</oop>
 
   <include resource="stuntjumps_freecam"/>
+  <include resource="dgs"/>
 
   <!-- Shared -->
   <script src="shared/**/*.lua" type="shared" cache="false"/>
