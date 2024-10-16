@@ -34,6 +34,18 @@ class "c_StuntJumps" {
         return self.packs
     end,
 
+    getJump = function(self, jump_id)
+        for _, pack in pairs(self.packs) do
+            for id, jump in pairs(pack.jumps) do
+                if jump.id == jump_id then
+                    return jump
+                end
+            end
+        end
+
+        return nil
+    end,
+
     load = function(self)
         outputDebugString("Loading packs...")
 

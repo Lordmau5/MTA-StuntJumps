@@ -46,7 +46,7 @@ class "JumpPack" {
             }
         end
 
-        return toJSON(exportTable, false, "spaces")
+        return toJSON(exportTable, true)
     end,
 
     exportToFile = function(self)

@@ -1,11 +1,13 @@
 class "StuntJump" {
-    constructor = function(self, id, startBox, endBox, camera, reward)
+    constructor = function(self, id, startBox, endBox, camera, reward, ignoresHeight)
         self.id = id
         self.startBox = startBox.__class == "BoundingBox" and startBox or BoundingBox(startBox.min, startBox.max)
         self.endBox = endBox.__class == "BoundingBox" and endBox or BoundingBox(endBox.min, endBox.max)
         self.camera = camera
         self.reward = reward
-        self.done = false
+
+        -- Default to not ignoring height
+        self.ignoresHeight = (ignoresHeight == false and false) or true
     end,
 
     setupBlip = function(self)
@@ -32,18 +34,7 @@ class "StuntJump" {
         return self.endBox:isPointInside(x, y, z)
     end,
 
-    isJumpDone = function(self)
-        return self.done
-    end,
-
-    setJumpDone = function(self, done)
-        self.done = done == nil and true or done
-
-        self:destroyBlip()
-
-        -- If we reset to not done, recreate the blip
-        if not self.done then
-            self:setupBlip()
-        end
+    doesIgnoreHeight = function(self)
+        return self.ignoresHeight
     end,
 }

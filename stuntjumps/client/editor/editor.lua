@@ -3,6 +3,9 @@
 -- menu to toggle falling off the bike
 -- GUI checkbox to save the camera position with lookAtX, Y and Z (or if it should follow the vehicle / player)
 -- list in the GUI to select which jumps to teleport to / edit / add etc.
+--
+-- reserved "edit" jump and "editor" pack, which are the currently editing one
+-- prefix all jump ids with their pack id
 -- 
 class "c_Editor" {
     constructor = function(self)
@@ -268,7 +271,8 @@ class "c_Editor" {
 
         -- Jump finalization
         if not self.jump then
-            self.jump = self.jumpPack:add("edit", self.startBoundingBox, self.endBoundingBox, self.cameraPosition, 500)
+            self.jump = self.jumpPack:add("edit", self.startBoundingBox, self.endBoundingBox, self.cameraPosition, 500,
+                true)
         end
 
         self.jump.camera = self.cameraPosition
@@ -408,7 +412,7 @@ class "c_Editor" {
 
             local visible = self:getActiveEditBoundingBox() ~= box or self.isBoundingBoxAlphaVisible
             local visibleAlpha = visible and 100 or 0
-            if self.jump and self.jump.done then
+            if Completions:isJumpCompleted(self.jump) then
                 visibleAlpha = visible and 20 or 0
             end
 
@@ -426,12 +430,12 @@ class "c_Editor" {
 
             local visible = self:getActiveEditBoundingBox() ~= box or self.isBoundingBoxAlphaVisible
             local visibleAlpha = visible and 100 or 0
-            if self.jump and self.jump.done then
+            if Completions:isJumpCompleted(self.jump) then
                 visibleAlpha = visible and 20 or 0
             end
 
             local endColor = tocolor(0, 200, 200, visibleAlpha)
-            if self.jump and self.jump.hitEndTrigger then
+            if Jump:getHitEndTrigger(self.jump) then
                 endColor = tocolor(0, 200, 0, visibleAlpha)
             end
 

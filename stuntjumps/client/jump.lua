@@ -4,7 +4,8 @@ class "c_Jump" {
         self.timerCheckDelay = 0
 
         self.stuntJumpState = "start"
-        self.currentStuntJump = nil
+        self.currentJump = nil
+        self.hitEndTrigger = false
         self.groundGracePeriod = 0
 
         self.vehicle = nil
@@ -19,7 +20,17 @@ class "c_Jump" {
     end,
 
     getCurrentStuntJump = function(self)
-        return self.currentStuntJump
+        return self.currentJump
+    end,
+
+    getHitEndTrigger = function(self, jump)
+        jump = jump ~= nil and jump or self.currentJump
+
+        if jump == nil or jump ~= self.currentJump then
+            return false
+        end
+
+        return self.hitEndTrigger
     end,
 
     -- Wheel on ground calculation
@@ -50,8 +61,8 @@ class "c_Jump" {
         return (math.sqrt(v.x ^ 2 + v.y ^ 2 + v.z ^ 2) * 50) >= 20
     end,
 
-    isVehicleMovingUpwards = function(self)
-        if not self.vehicle then
+    isVehicleMovingUpwards = function(self, jump)
+        if not self.vehicle or not jump then
             return false
         end
 
@@ -59,7 +70,7 @@ class "c_Jump" {
 
         -- Check if Z velocity is upward at least a bit
         -- This prevents jumps from triggering when jumping *down*
-        return velocity.z >= 0.1
+        return jump:doesIgnoreHeight() or velocity.z >= 0.1
     end,
 
     -- If all the conditions are met to trigger the start of a stunt jump
@@ -86,10 +97,6 @@ class "c_Jump" {
             return false
         end
 
-        if not self:isVehicleMovingUpwards() then
-            return false
-        end
-
         return true
     end,
 
@@ -104,7 +111,7 @@ class "c_Jump" {
     end,
 
     isFailureStateMet = function(self)
-        if not self.currentStuntJump then
+        if not self.currentJump then
             return true
         end
 
@@ -132,21 +139,25 @@ class "c_Jump" {
                 return
             end
 
-            local tempStuntJump = self:getStuntJumpForPosition()
-            if not tempStuntJump then
+            local jump = self:getStuntJumpForPosition()
+            if not jump then
                 return
+            end
+
+            if not self:isVehicleMovingUpwards(jump) then
+                return false
             end
 
             setGameSpeed(0.3)
 
             self.stuntJumpState = "air"
-            self.currentStuntJump = tempStuntJump
+            self.currentJump = jump
             self.timerCheckDelay = self.currentTime + 2000
-            self.currentStuntJump.hitEndTrigger = false
+            self.hitEndTrigger = false
 
             outputChatBox("Starting stunt jump!")
         elseif self.stuntJumpState == "air" then
-            if not self.currentStuntJump then
+            if not self.currentJump then
                 stuntJumpState = "start"
                 return
             end
@@ -159,9 +170,9 @@ class "c_Jump" {
             end
 
             local pos = self.vehicle.position
-            if self.currentStuntJump:isInEndBox(pos.x, pos.y, pos.z) and not self.currentStuntJump.hitEndTrigger then
-                self.currentStuntJump.hitEndTrigger = true
-                if not self.currentStuntJump.done then
+            if self.currentJump:isInEndBox(pos.x, pos.y, pos.z) and not self.hitEndTrigger then
+                self.hitEndTrigger = true
+                if not Completions:isJumpCompleted(self.currentJump) then
                     playSFX("genrl", 52, 18, false)
                 end
             end
@@ -179,25 +190,28 @@ class "c_Jump" {
             setGameSpeed(1)
             setCameraTarget(localPlayer)
 
-            if self.currentStuntJump.hitEndTrigger and not self.currentStuntJump.done then
-                self.currentStuntJump:setJumpDone()
+            local isJumpCompleted = Completions:isJumpCompleted(self.currentJump)
+
+            if self.hitEndTrigger and not isJumpCompleted then
+                Completions:setJumpCompleted(self.currentJump)
                 outputChatBox("Completed stunt jump!", 0, 230, 0)
             else
-                if self.currentStuntJump.done then
+                if isJumpCompleted then
                     outputChatBox("You've already completed this jump before.", 230, 0, 0)
-                elseif not self.currentStuntJump.hitEndTrigger then
+                elseif not self.hitEndTrigger then
                     outputChatBox("You've not hit the end trigger.", 230, 0, 0)
                 end
             end
 
             self.stuntJumpState = "start"
-            self.currentStuntJump = nil
+            self.currentJump = nil
+            self.hitEndTrigger = false
         end
     end,
 
     updateCameraDuringStuntJump = function(self)
-        if self.currentStuntJump then
-            local cam = self.currentStuntJump.camera
+        if self.currentJump then
+            local cam = self.currentJump.camera
             if cam and cam.x then
                 local pos = localPlayer.position
 

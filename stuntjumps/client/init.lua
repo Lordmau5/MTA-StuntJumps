@@ -72,7 +72,7 @@ class "ClientInit" {
     resetStuntJumps = function(self)
         for _, pack in pairs(StuntJumps:getAll()) do
             for _2, jump in pairs(pack.jumps) do
-                jump:setJumpDone(false)
+                Completions:setJumpCompleted(jump, false)
             end
         end
     end,
@@ -83,6 +83,8 @@ class "ClientInit" {
             local pack = StuntJumps:add(name, _pack.jumps)
             pack:setupBlips()
         end
+
+        Completions:load()
     end,
 
     renderAllBoundingBoxes = function(self)
@@ -96,7 +98,7 @@ class "ClientInit" {
 
                 for _2, jump in pairs(pack.jumps) do
                     repeat
-                        if jump.done then
+                        if Completions:isJumpCompleted(jump) then
                             break
                         end
 
@@ -112,7 +114,7 @@ class "ClientInit" {
                         local endColor = tocolor(0, 200, 200, 100)
 
                         local currentJump = Jump:getCurrentStuntJump()
-                        if currentJump and jump.id == currentJump.id and currentJump.hitEndTrigger then
+                        if Jump:getHitEndTrigger() then
                             endColor = tocolor(0, 200, 0, 100)
                         end
 
