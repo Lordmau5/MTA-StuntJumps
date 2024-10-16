@@ -7,7 +7,7 @@ class "StuntJump" {
         self.reward = reward
 
         -- Default to not ignoring height
-        self.ignoresHeight = (ignoresHeight == false and false) or true
+        self.ignoresHeight = ignoresHeight == true
     end,
 
     setupBlip = function(self)

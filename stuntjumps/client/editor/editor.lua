@@ -59,10 +59,6 @@ class "c_Editor" {
             self:onStart()
         end)
 
-        addEventHandler("onClientPlayerDamage", localPlayer, function()
-            self:onClientPlayerDamage()
-        end)
-
         addEventHandler("onClientRender", root, function()
             self:updatePlayerPosition()
         end)
@@ -142,13 +138,6 @@ class "c_Editor" {
         end, false)
 
         dgsSetVisible(self.gui.window, false)
-
-        -- Ped knocked off bike
-        localPlayer:setCanBeKnockedOffBike(false)
-    end,
-
-    onClientPlayerDamage = function(self)
-        cancelEvent()
     end,
 
     updatePlayerPosition = function(self)

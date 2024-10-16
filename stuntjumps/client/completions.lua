@@ -5,6 +5,10 @@ class "c_Completions" {
     end,
 
     load = function(self)
+        if not File.exists("completions.json") then
+            return
+        end
+
         local completionFile = File.open("completions.json", true)
         if completionFile then
             local data = completionFile:read(completionFile:getSize())

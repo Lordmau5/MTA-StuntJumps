@@ -13,6 +13,14 @@ class "ClientInit" {
             self:onStop()
         end)
 
+        addEventHandler("onClientPlayerDamage", localPlayer, function()
+            self:onClientPlayerDamage()
+        end)
+
+        addEventHandler("onClientVehicleDamage", localPlayer, function()
+            self:onClientVehicleDamage()
+        end)
+
         setTimer(function()
             self:ensureNightTime()
         end, 500, 0)
@@ -42,19 +50,24 @@ class "ClientInit" {
         clearDebugBox()
 
         setGameSpeed(1)
-        setFPSLimit(60)
 
         setPlayerHudComponentVisible("all", false)
 
         setPlayerHudComponentVisible("radar", true)
-
-        setPedCanBeKnockedOffBike(localPlayer, false)
     end,
 
     onStop = function(self)
         setPlayerHudComponentVisible("all", true)
 
         setPedCanBeKnockedOffBike(localPlayer, true)
+    end,
+
+    onClientPlayerDamage = function(self)
+        cancelEvent()
+    end,
+
+    onClientVehicleDamage = function(self)
+        cancelEvent()
     end,
 
     ensureNightTime = function()
@@ -88,9 +101,15 @@ class "ClientInit" {
         end
 
         Completions:load()
+
+        MainUI:populateJumpPacks()
     end,
 
     renderAllBoundingBoxes = function(self)
+        if not Settings:get("drawBoundingBoxes") then
+            return
+        end
+
         local allPacks = StuntJumps:getAll()
 
         for _, pack in pairs(allPacks) do

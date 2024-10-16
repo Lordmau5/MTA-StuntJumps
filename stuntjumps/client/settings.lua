@@ -1,48 +1,79 @@
+local __default_settings = {
+    fpsLimit = 60,
+    canBeKnockedOffBike = false,
+    drawBoundingBoxes = false,
+}
+
 class "c_Settings" {
     constructor = function(self)
-        self.textColor = 0xFFFFFFFF
-        self.titleColor = 0xC81448AF
+        self.settings = {
+            fpsLimit = __default_settings.fpsLimit,
+            canBeKnockedOffBike = __default_settings.canBeKnockedOffBike,
+            drawBoundingBoxes = __default_settings.drawBoundingBoxes,
+        }
 
         addEventHandler("onClientResourceStart", resourceRoot, function()
             self:onStart()
         end)
-
-        -- bindKey("L", "down", function()
-        --     dgsSetVisible(self.window, not dgsGetVisible(self.window))
-        --     showCursor(dgsGetVisible(self.window))
-        -- end)
-        -- showCursor(true)
     end,
 
-    -- WIP fancy UI
     onStart = function(self)
-        local width, height = guiGetScreenSize()
-        local centerX, centerY = (width / 2) - (500 / 2), (height / 2) - (500 / 2)
+        self:load()
 
-        self.window = dgsCreateWindow(centerX, centerY, 500, 500, "Settings", false, self.textColor, 25, nil,
-            self.titleColor)
-        dgsWindowSetSizable(self.window, false)
+        self:updateSettings()
+    end,
 
-        local tabPanel = dgsCreateTabPanel(0, 0, 500, 500, false, self.window)
-        local tab1 = dgsCreateTab("Test", tabPanel)
-        local tab2 = dgsCreateTab("Test2", tabPanel)
+    updateSettings = function(self)
+        setFPSLimit(self:get("fpsLimit"))
+        setPedCanBeKnockedOffBike(localPlayer, self:get("canBeKnockedOffBike"))
 
-        local checkbox = dgsCreateCheckBox(0, 0, 100, 20, "Prevent Falling Off Bike", true, false, tab1)
-        local checkbox2 = dgsCreateCheckBox(0, 20, 100, 20, "Prevent Falling Off Bike", true, false, tab1)
+        outputDebugString("canPedBeKnockedOffBike: " .. tostring(canPedBeKnockedOffBike(localPlayer)))
 
-        local gridList = dgsCreateGridList(0, 0, 500, 500, false, tab2)
-        local colid = dgsGridListAddColumn(gridList, "ID", 0.05)
-        local colname = dgsGridListAddColumn(gridList, "Name", 0.5)
-        for id, player in ipairs(getElementsByType("player")) do
-            for i = 1, 50 do
-                local row = dgsGridListAddRow(gridList)
-                dgsGridListSetItemText(gridList, row, colid, tostring(i))
-                dgsGridListSetItemText(gridList, row, colname, getPlayerName(player))
-            end
+        MainUI:updateCheckboxes()
+    end,
+
+    load = function(self)
+        if not File.exists("settings.json") then
+            return
         end
 
-        dgsGridListSetSortEnabled(gridList, false)
-        dgsSetVisible(self.window, false)
+        local settingsFile = File.open("settings.json", true)
+        if settingsFile then
+            local data = settingsFile:read(settingsFile:getSize())
+            self.settings = fromJSON(data)
+            outputDebugString("Loaded: " .. data)
+            settingsFile:close()
+        end
+    end,
+
+    save = function(self)
+        local settingsFile = File.new("settings.json")
+        if settingsFile then
+            settingsFile:write(toJSON(self.settings))
+            settingsFile:close()
+        end
+    end,
+
+    get = function(self, key)
+        if self.settings[key] ~= nil then
+            return self.settings[key]
+        end
+
+        return __default_settings[key]
+    end,
+
+    set = function(self, key, value)
+        if __default_settings[key] == nil then
+            return false
+        end
+
+        self.settings[key] = value
+        outputDebugString("Set: " .. key .. " to " .. tostring(self.settings[key]))
+
+        self:updateSettings()
+        self:save()
+
+        return true
     end,
 }
 

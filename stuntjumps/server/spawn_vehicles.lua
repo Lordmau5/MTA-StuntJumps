@@ -7,7 +7,7 @@ class "VehicleSpawner" {
 
         addEvent("spawnVehicle", true)
         addEventHandler("spawnVehicle", root, function(type)
-            self:spawnVehicle(source, type)
+            self:spawnVehicle(client, type)
         end)
     end,
 
@@ -22,9 +22,6 @@ class "VehicleSpawner" {
         local vehicle = createVehicle(type == "packer" and 443 or 522, x, y, z) -- 522 for NRG, 443 for packer
         setElementRotation(vehicle, getElementRotation(player))
         warpPedIntoVehicle(player, vehicle)
-
-        setVehicleDamageProof(vehicle, true)
-        setVehicleEngineState(vehicle, true)
 
         if self.vehicles[type][player] then
             destroyElement(self.vehicles[type][player])

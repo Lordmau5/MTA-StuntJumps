@@ -53,7 +53,7 @@ class "c_Jump" {
     -- If the vehicle is driving the minimum required speed to trigger a Starting stunt jump
     -- https://github.com/gta-reversed/gta-reversed-modern/blob/master/source/game_sa/StuntJumpManager.cpp#L111
     isVehicleDrivingJumpSpeed = function(self)
-        if not self.vehicle then
+        if not self.vehicle or not self.vehicle.velocity then
             return false
         end
 
@@ -62,7 +62,7 @@ class "c_Jump" {
     end,
 
     isVehicleMovingUpwards = function(self, jump)
-        if not self.vehicle or not jump then
+        if not self.vehicle or not self.vehicle.velocity or not jump then
             return false
         end
 
