@@ -10,7 +10,6 @@
 class "c_Editor" {
     constructor = function(self)
         self.editModeActive = false
-        self.guiActive = false
         self.isSelectingBoundingBox = false
         self.isSelectingEndingBox = false
 
@@ -22,6 +21,9 @@ class "c_Editor" {
         self.gui = {
             isActive = false,
             window = nil,
+            tabPanel = nil,
+            tabCreate = nil,
+            tabEdit = nil,
             setupStartBtn = nil,
             setupEndBtn = nil,
             setupCameraBtn = nil,
@@ -103,32 +105,43 @@ class "c_Editor" {
     end,
 
     onStart = function(self)
-        self.gui.window = GuiWindow(0.4, 0.4, 0.2, 0.3, "Editor Options", true)
+        local textColor = 0xFFFFFFFF
+        local titleColor = 0xC81448AF
 
-        self.gui.setupStartBtn = GuiButton(0.1, 0.2, 0.8, 0.15, "Setup Starting Bounding Box", true, self.gui.window)
+        self.gui.window = dgsCreateWindow(0.4, 0.4, 0.2, 0.3, "Editor", true, textColor, 25, nil, titleColor)
 
-        self.gui.setupEndBtn = GuiButton(0.1, 0.4, 0.8, 0.15, "Setup Ending Bounding Box", true, self.gui.window)
-        self.gui.setupEndBtn.enabled = false
+        self.gui.tabPanel = dgsCreateTabPanel(0, 0, 1, 1, true, self.gui.window)
+        self.gui.tabCreate = dgsCreateTab("Create", self.gui.tabPanel)
+        self.gui.tabEdit = dgsCreateTab("Edit", self.gui.tabPanel)
 
-        self.gui.setupCameraBtn = GuiButton(0.1, 0.6, 0.8, 0.15, "Setup Camera Position", true, self.gui.window)
-        self.gui.setupCameraBtn.enabled = false
+        self.gui.setupStartBtn = dgsCreateButton(0.1, 0.1, 0.8, 0.15, "Setup Starting Bounding Box", true,
+            self.gui.tabCreate)
 
-        self.gui.closeBtn = GuiButton(0.1, 0.8, 0.8, 0.15, "Close", true, self.gui.window)
+        self.gui.setupEndBtn = dgsCreateButton(0.1, 0.3, 0.8, 0.15, "Setup Ending Bounding Box", true,
+            self.gui.tabCreate)
+        dgsSetEnabled(self.gui.setupEndBtn, false)
 
-        addEventHandler("onClientGUIClick", self.gui.setupStartBtn, function()
+        self.gui.setupCameraBtn =
+            dgsCreateButton(0.1, 0.5, 0.8, 0.15, "Setup Camera Position", true, self.gui.tabCreate)
+        dgsSetEnabled(self.gui.setupCameraBtn, false)
+
+        self.gui.closeBtn = dgsCreateButton(0.1, 0.7, 0.8, 0.15, "Close", true, self.gui.tabCreate, 0xFFFFFFFF, 1, 1,
+            nil, nil, nil, 0xC8FF5A5A, 0xC8FF0000)
+
+        addEventHandler("onDgsMouseClickUp", self.gui.setupStartBtn, function()
             self:onSetupStartBoundingBox()
         end, false)
-        addEventHandler("onClientGUIClick", self.gui.setupEndBtn, function()
+        addEventHandler("onDgsMouseClickUp", self.gui.setupEndBtn, function()
             self:onSetupEndBoundingBox()
         end, false)
-        addEventHandler("onClientGUIClick", self.gui.setupCameraBtn, function()
+        addEventHandler("onDgsMouseClickUp", self.gui.setupCameraBtn, function()
             self:onSetupCameraPosition()
         end, false)
-        addEventHandler("onClientGUIClick", self.gui.closeBtn, function()
+        addEventHandler("onDgsMouseClickUp", self.gui.closeBtn, function()
             self:closeGui()
         end, false)
 
-        self.gui.window.visible = false
+        dgsSetVisible(self.gui.window, false)
 
         -- Ped knocked off bike
         localPlayer:setCanBeKnockedOffBike(false)
@@ -139,7 +152,7 @@ class "c_Editor" {
     end,
 
     updatePlayerPosition = function(self)
-        if not self.editModeActive then
+        if not self.editModeActive or self.gui.isActive then
             return
         end
 
@@ -214,14 +227,14 @@ class "c_Editor" {
     -- Show the GUI
     showGui = function(self)
         self.gui.isActive = true
-        self.gui.window.visible = true
+        dgsSetVisible(self.gui.window, true)
         showCursor(true)
     end,
 
     -- Close the GUI
     closeGui = function(self)
         self.gui.isActive = false
-        self.gui.window.visible = false
+        dgsSetVisible(self.gui.window, false)
         showCursor(false)
     end,
 
@@ -356,7 +369,7 @@ class "c_Editor" {
                     self.jump.endBox = self.endBoundingBox
                 end
 
-                self.gui.setupCameraBtn.enabled = true
+                dgsSetEnabled(self.gui.setupCameraBtn, true)
             else
                 self.startBoundingBox = self:finalizeBoundingBox()
 
@@ -364,7 +377,7 @@ class "c_Editor" {
                     self.jump.startBox = self.startBoundingBox
                 end
 
-                self.gui.setupEndBtn.enabled = true
+                dgsSetEnabled(self.gui.setupEndBtn, true)
             end
 
             self.isSelectingBoundingBox = false
