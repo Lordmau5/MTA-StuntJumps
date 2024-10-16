@@ -19,7 +19,7 @@ class "JumpPack" {
     import = function(self, json_data)
         self.jumps = {}
 
-        local decodedData = json.decode(json_data)
+        local decodedData = fromJSON(json_data)
         for _, jumpData in pairs(decodedData) do
             self:add(jumpData.id, jumpData.startBox, jumpData.endBox, jumpData.camera, jumpData.reward)
         end
@@ -46,7 +46,7 @@ class "JumpPack" {
             }
         end
 
-        return json.encode(exportTable)
+        return toJSON(exportTable, false, "spaces")
     end,
 
     exportToFile = function(self)
