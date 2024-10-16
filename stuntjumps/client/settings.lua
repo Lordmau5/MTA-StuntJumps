@@ -7,11 +7,11 @@ class "c_Settings" {
             self:onStart()
         end)
 
-        bindKey("L", "down", function()
-            dgsSetVisible(self.window, not dgsGetVisible(self.window))
-            showCursor(dgsGetVisible(self.window))
-        end)
-        showCursor(true)
+        -- bindKey("L", "down", function()
+        --     dgsSetVisible(self.window, not dgsGetVisible(self.window))
+        --     showCursor(dgsGetVisible(self.window))
+        -- end)
+        -- showCursor(true)
     end,
 
     -- WIP fancy UI
@@ -42,6 +42,7 @@ class "c_Settings" {
         end
 
         dgsGridListSetSortEnabled(gridList, false)
+        dgsSetVisible(self.window, false)
     end,
 }
 
