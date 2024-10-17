@@ -18,7 +18,7 @@ class "c_Editor" {
             self:updateCrosshairRender()
         end
 
-        self.gui = {
+        self.ui = {
             isActive = false,
             window = nil,
             tabPanel = nil,
@@ -104,44 +104,43 @@ class "c_Editor" {
         local textColor = 0xFFFFFFFF
         local titleColor = 0xC81448AF
 
-        self.gui.window = dgsCreateWindow(0.4, 0.4, 0.2, 0.3, "Editor", true, textColor, 25, nil, titleColor)
+        self.ui.window = dgsCreateWindow(0.4, 0.4, 0.2, 0.3, "Editor", true, textColor, 25, nil, titleColor)
 
-        self.gui.tabPanel = dgsCreateTabPanel(0, 0, 1, 1, true, self.gui.window)
-        self.gui.tabCreate = dgsCreateTab("Create", self.gui.tabPanel)
-        self.gui.tabEdit = dgsCreateTab("Edit", self.gui.tabPanel)
+        self.ui.tabPanel = dgsCreateTabPanel(0, 0, 1, 1, true, self.ui.window)
+        self.ui.tabCreate = dgsCreateTab("Create", self.ui.tabPanel)
+        self.ui.tabEdit = dgsCreateTab("Edit", self.ui.tabPanel)
 
-        self.gui.setupStartBtn = dgsCreateButton(0.1, 0.1, 0.8, 0.15, "Setup Starting Bounding Box", true,
-            self.gui.tabCreate)
+        self.ui.setupStartBtn = dgsCreateButton(0.1, 0.1, 0.8, 0.15, "Setup Starting Bounding Box", true,
+            self.ui.tabCreate)
 
-        self.gui.setupEndBtn = dgsCreateButton(0.1, 0.3, 0.8, 0.15, "Setup Ending Bounding Box", true,
-            self.gui.tabCreate)
-        dgsSetEnabled(self.gui.setupEndBtn, false)
+        self.ui.setupEndBtn = dgsCreateButton(0.1, 0.3, 0.8, 0.15, "Setup Ending Bounding Box", true, self.ui.tabCreate)
+        dgsSetEnabled(self.ui.setupEndBtn, false)
 
-        self.gui.setupCameraBtn =
-            dgsCreateButton(0.1, 0.5, 0.8, 0.15, "Setup Camera Position", true, self.gui.tabCreate)
-        dgsSetEnabled(self.gui.setupCameraBtn, false)
+        self.ui.setupCameraBtn = dgsCreateButton(0.1, 0.5, 0.8, 0.15, "Setup Camera Position", true, self.ui.tabCreate)
+        dgsSetEnabled(self.ui.setupCameraBtn, false)
 
-        self.gui.closeBtn = dgsCreateButton(0.1, 0.7, 0.8, 0.15, "Close", true, self.gui.tabCreate, 0xFFFFFFFF, 1, 1,
-            nil, nil, nil, 0xC8FF5A5A, 0xC8FF0000)
+        self.ui.closeBtn = dgsCreateButton(0.1, 0.7, 0.8, 0.15, "Close", true, self.ui.tabCreate, 0xFFFFFFFF, 1, 1, nil,
+            nil, nil, 0xC8FF5A5A, 0xC8FF0000)
 
-        addEventHandler("onDgsMouseClickUp", self.gui.setupStartBtn, function()
+        addEventHandler("onDgsMouseClickUp", self.ui.setupStartBtn, function()
             self:onSetupStartBoundingBox()
         end, false)
-        addEventHandler("onDgsMouseClickUp", self.gui.setupEndBtn, function()
+        addEventHandler("onDgsMouseClickUp", self.ui.setupEndBtn, function()
             self:onSetupEndBoundingBox()
         end, false)
-        addEventHandler("onDgsMouseClickUp", self.gui.setupCameraBtn, function()
+        addEventHandler("onDgsMouseClickUp", self.ui.setupCameraBtn, function()
             self:onSetupCameraPosition()
         end, false)
-        addEventHandler("onDgsMouseClickUp", self.gui.closeBtn, function()
+        addEventHandler("onDgsMouseClickUp", self.ui.closeBtn, function()
             self:closeGui()
         end, false)
 
-        dgsSetVisible(self.gui.window, false)
+        dgsCenterElement(self.ui.window)
+        dgsSetVisible(self.ui.window, false)
     end,
 
     updatePlayerPosition = function(self)
-        if not self.editModeActive or self.gui.isActive then
+        if not self.editModeActive or self.ui.isActive then
             return
         end
 
@@ -203,7 +202,7 @@ class "c_Editor" {
             return
         end
 
-        if self.gui.isActive then
+        if self.ui.isActive then
             self:closeGui()
         else
             self.isSelectingBoundingBox = false
@@ -215,15 +214,15 @@ class "c_Editor" {
 
     -- Show the GUI
     showGui = function(self)
-        self.gui.isActive = true
-        dgsSetVisible(self.gui.window, true)
+        self.ui.isActive = true
+        dgsSetVisible(self.ui.window, true)
         showCursor(true)
     end,
 
     -- Close the GUI
     closeGui = function(self)
-        self.gui.isActive = false
-        dgsSetVisible(self.gui.window, false)
+        self.ui.isActive = false
+        dgsSetVisible(self.ui.window, false)
         showCursor(false)
     end,
 
@@ -358,7 +357,7 @@ class "c_Editor" {
                     self.jump.endBox = self.endBoundingBox
                 end
 
-                dgsSetEnabled(self.gui.setupCameraBtn, true)
+                dgsSetEnabled(self.ui.setupCameraBtn, true)
             else
                 self.startBoundingBox = self:finalizeBoundingBox()
 
@@ -366,7 +365,7 @@ class "c_Editor" {
                     self.jump.startBox = self.startBoundingBox
                 end
 
-                dgsSetEnabled(self.gui.setupEndBtn, true)
+                dgsSetEnabled(self.ui.setupEndBtn, true)
             end
 
             self.isSelectingBoundingBox = false
