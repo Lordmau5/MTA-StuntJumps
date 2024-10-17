@@ -27,8 +27,6 @@ class "c_Settings" {
         setFPSLimit(self:get("fpsLimit"))
         setPedCanBeKnockedOffBike(localPlayer, self:get("canBeKnockedOffBike"))
 
-        outputDebugString("canPedBeKnockedOffBike: " .. tostring(canPedBeKnockedOffBike(localPlayer)))
-
         MainUI:updateCheckboxes()
     end,
 

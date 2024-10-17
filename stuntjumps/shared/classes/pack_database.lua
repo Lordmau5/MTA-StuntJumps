@@ -80,9 +80,11 @@ class "c_StuntJumps" {
 
     getJumpForStartBox = function(self, x, y, z)
         for _, pack in pairs(self.packs) do
-            local jump = pack:getJumpForStartBox(x, y, z)
-            if jump then
-                return jump
+            if pack:isActive() then
+                local jump = pack:getJumpForStartBox(x, y, z)
+                if jump then
+                    return jump
+                end
             end
         end
 

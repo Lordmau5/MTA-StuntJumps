@@ -73,6 +73,21 @@ class "c_Completions" {
 
         return true
     end,
+
+    getPackCompletions = function(self, pack)
+        if not pack or not pack.jumps then
+            return 0
+        end
+
+        local completed = 0
+        for _, jump in pairs(pack.jumps) do
+            if self:isJumpCompleted(jump) then
+                completed = completed + 1
+            end
+        end
+
+        return completed
+    end,
 }
 
 Completions = c_Completions()

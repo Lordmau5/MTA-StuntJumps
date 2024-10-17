@@ -87,8 +87,10 @@ class "ClientInit" {
 
     resetStuntJumps = function(self)
         for _, pack in pairs(StuntJumps:getAll()) do
-            for _2, jump in pairs(pack.jumps) do
-                Completions:setJumpCompleted(jump, false)
+            if pack:isActive() then
+                for _2, jump in pairs(pack.jumps) do
+                    Completions:setJumpCompleted(jump, false)
+                end
             end
         end
     end,
@@ -102,7 +104,7 @@ class "ClientInit" {
 
         Completions:load()
 
-        MainUI:populateJumpPacks()
+        MainUI:updateJumpsTab()
     end,
 
     renderAllBoundingBoxes = function(self)
@@ -115,6 +117,10 @@ class "ClientInit" {
         for _, pack in pairs(allPacks) do
             repeat
                 if pack.name == "editor" then
+                    break
+                end
+
+                if not pack:isActive() then
                     break
                 end
 

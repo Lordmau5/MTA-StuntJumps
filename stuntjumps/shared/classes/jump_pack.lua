@@ -2,6 +2,7 @@ class "JumpPack" {
     constructor = function(self, name, jumps)
         self.name = name
         self.jumps = {}
+        self.active = true
 
         if jumps ~= nil then
             for _, jump in pairs(jumps) do
@@ -67,6 +68,18 @@ class "JumpPack" {
         end
     end,
 
+    isActive = function(self)
+        return self.active
+    end,
+
+    setActive = function(self, active)
+        if active ~= true and active ~= false then
+            active = true
+        end
+
+        self.active = active
+    end,
+
     add = function(self, id, startBox, endBox, camera, reward)
         if self.jumps[id] ~= nil then
             return false
@@ -81,6 +94,10 @@ class "JumpPack" {
 
     get = function(self, id)
         return self.jumps[id]
+    end,
+
+    getCount = function(self)
+        return #tablex.values(self.jumps)
     end,
 
     getJumpForStartBox = function(self, x, y, z)
