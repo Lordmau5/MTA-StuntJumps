@@ -32,10 +32,6 @@ class "ClientInit" {
             self:spawnVehicle("packer")
         end)
 
-        bindKey("r", "down", function()
-            self:resetStuntJumps()
-        end)
-
         addEvent("receiveJumpPacks", true)
         addEventHandler("receiveJumpPacks", resourceRoot, function(packs)
             self:receiveJumpPacks(packs)
@@ -83,16 +79,6 @@ class "ClientInit" {
         self.spawnCooldown = currentTime + 3000
 
         triggerServerEvent("spawnVehicle", localPlayer, type)
-    end,
-
-    resetStuntJumps = function(self)
-        for _, pack in pairs(StuntJumps:getAll()) do
-            if pack:isActive() then
-                for _2, jump in pairs(pack.jumps) do
-                    Completions:setJumpCompleted(jump, false)
-                end
-            end
-        end
     end,
 
     receiveJumpPacks = function(self, packs)

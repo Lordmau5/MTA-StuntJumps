@@ -88,6 +88,18 @@ class "c_Completions" {
 
         return completed
     end,
+
+    resetJumpCompletions = function(self, pack)
+        if not pack or not pack.jumps then
+            return false
+        end
+
+        for _, jump in pairs(pack.jumps) do
+            self:setJumpCompleted(jump, false)
+        end
+
+        return true
+    end,
 }
 
 Completions = c_Completions()

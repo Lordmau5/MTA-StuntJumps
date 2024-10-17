@@ -69,8 +69,6 @@ class "c_MainUI" {
     end,
 
     buildJumpPacks = function(self)
-        -- TODO: Rework to actually show jumps / jump packs and add a checkbox for every single one
-        -- (Or a single checkbox that updates on the right side with an on-click / select for the grid list)
         local list = dgsCreateGridList(0, 0, 0.6, 1, true, self.ui.tab["jumps"].tab)
         dgsGridListSetSortEnabled(list, false)
         dgsGridListSetSelectionMode(list, 0)
@@ -81,13 +79,28 @@ class "c_MainUI" {
 
         -- Info
         local dummyLabel = dgsCreateLabel(0.61, 0.0, 0.39, 1, "", true, self.ui.tab["jumps"].tab)
+        dgsSetVisible(dummyLabel, false)
+
         local jumpActiveCheckbox = dgsCreateCheckBox(0.0, 0.02, 0.3, 0.05, "Active", true, true, dummyLabel)
-
         local jumpTitle = dgsCreateLabel(0, 0.08, 0.3, 0.1, "Title: ", true, dummyLabel)
-        local jumpCount = dgsCreateLabel(0, 0.12, 0.3, 0.1, "Jumps: 40", true, dummyLabel)
-        local jumpCompleted = dgsCreateLabel(0, 0.16, 0.3, 0.1, "Completed: 20/40", true, dummyLabel)
+        local jumpCompleted = dgsCreateLabel(0, 0.12, 0.3, 0.1, "Completed: 0 / 0", true, dummyLabel)
 
-        dgsSetVisible(dummyLabel, true)
+        local jumpReset = dgsCreateButton(0, 0.16, 0.3, 0.05, "Reset", true, dummyLabel)
+        dgsSetProperty(jumpReset, "color", {
+            0xDC555A64,
+            0xC8FF5A5A,
+            0xC8FF0000,
+        })
+
+        addEventHandler("onDgsMouseClickUp", jumpReset, function()
+            local pack = self:getSelectedJumpPack()
+            if not pack then
+                return
+            end
+
+            Completions:resetJumpCompletions(pack)
+            self.ui.tab["jumps"].updateInfo()
+        end, false)
 
         addEventHandler("onDgsGridListSelect", list, function(currentItem)
             self.ui.tab["jumps"].updateInfo()
@@ -128,7 +141,6 @@ class "c_MainUI" {
 
         self.ui.tab["jumps"].activeCheckbox = jumpActiveCheckbox
         self.ui.tab["jumps"].title = jumpTitle
-        self.ui.tab["jumps"].count = jumpCount
         self.ui.tab["jumps"].completed = jumpCompleted
 
         self.ui.tab["jumps"].updateInfo = function()
@@ -142,7 +154,6 @@ class "c_MainUI" {
 
             dgsCheckBoxSetSelected(jumpActiveCheckbox, pack:isActive())
             dgsSetText(jumpTitle, "Title: " .. pack.name)
-            dgsSetText(jumpCount, "Jumps: " .. tostring(pack:getCount()))
             dgsSetText(jumpCompleted, "Completed: " .. tostring(Completions:getPackCompletions(pack)) .. " / " ..
                 tostring(pack:getCount()))
         end
