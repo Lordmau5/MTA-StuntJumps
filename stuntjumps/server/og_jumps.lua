@@ -2003,7 +2003,7 @@ class "c_OG_Jumps" {
             self.ogJumps:add("gta_" .. id, tempJump.startBox, tempJump.endBox, tempJump.camera, tempJump.reward)
         end
 
-        self.ogJumps:exportToFile()
+        self.ogJumps:export()
     end,
 }
 

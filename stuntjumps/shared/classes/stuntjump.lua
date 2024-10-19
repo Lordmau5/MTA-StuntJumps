@@ -8,14 +8,22 @@ class "StuntJump" {
 
         -- Default to not ignoring height
         self.ignoresHeight = ignoresHeight == true
+
+        self.blip = nil
     end,
 
     setupBlip = function(self)
+        if not localPlayer then
+            return
+        end
+
         self:destroyBlip()
 
         local centerX = (self.startBox.min.x + self.startBox.max.x) / 2
         local centerY = (self.startBox.min.y + self.startBox.max.y) / 2
         local centerZ = (self.startBox.min.z + self.startBox.max.z) / 2
+
+        local ground = getGroundPosition(centerX, centerY, centerZ)
 
         self.blip = createBlip(centerX, centerY, centerZ, 0, 1, 0, 255, 255, 255, 0, 65535)
     end,

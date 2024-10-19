@@ -15,13 +15,10 @@
 -- 2. Altered source versions must be plainly marked as such, and must not be
 --    misrepresented as being the original software.
 -- 3. This notice may not be removed or altered from any source distribution.
--- 
-stringx = {}
-tablex = {}
-
+--
 -- check if a given string ends with another
 -- (without garbage)
-function stringx.ends_with(s, suffix)
+string.ends_with = function(s, suffix)
     local len = #s
     local suffix_len = #suffix
     for i = 0, suffix_len - 1 do
@@ -34,7 +31,7 @@ end
 
 -- collect all values of a keyed table into a sequential table
 -- (shallow copy if it's already sequential)
-function tablex.values(t)
+table.values = function(t)
     local r = {}
     for k, v in pairs(t) do
         table.insert(r, v)

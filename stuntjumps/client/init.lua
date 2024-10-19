@@ -82,7 +82,7 @@ class "ClientInit" {
     end,
 
     receiveJumpPacks = function(self, packs)
-        outputDebugString("Received " .. #tablex.values(packs) .. " jump packs")
+        outputDebugString("Received " .. #table.values(packs) .. " jump packs")
         for name, _pack in pairs(packs) do
             local pack = StuntJumps:add(name, _pack.jumps)
             pack:setupBlips()

@@ -4,30 +4,44 @@ class "c_StuntJumps" {
     end,
 
     add = function(self, name, jumps)
-        if self.packs[name] ~= nil then
+        local id = string.to_kebab_case(name)
+
+        if self.packs[id] ~= nil then
             return false
         end
 
-        self.packs[name] = JumpPack(name, jumps)
-        self.packs[name]:setupBlips()
+        self.packs[id] = JumpPack(name, jumps)
+        self.packs[id]:setupBlips()
 
-        return self.packs[name]
+        return self.packs[id]
     end,
 
     remove = function(self, name, delete)
-        if self.packs[name] == nil then
+        local id = string.to_kebab_case(name)
+
+        if self.packs[id] == nil then
             return false
         end
 
-        self.packs[name] = nil
+        self.packs[id] = nil
 
         if delete then
-            File.delete("jump_packs/" .. name .. ".json")
+            File.delete("jump_packs/" .. id .. ".json")
         end
     end,
 
-    get = function(self, name)
-        return self.packs[name]
+    get = function(self, id)
+        return self.packs[id]
+    end,
+
+    getByName = function(self, name)
+        for id, pack in pairs(self.packs) do
+            if pack.name == name then
+                return pack
+            end
+        end
+
+        return nil
     end,
 
     getAll = function(self)
@@ -51,22 +65,26 @@ class "c_StuntJumps" {
 
         local jump_packs = pathListDir("jump_packs") or {}
         for _, file in pairs(jump_packs) do
-            if stringx.ends_with(file, ".json") then
-                local name = string.sub(file, 1, -6)
-                outputDebugString("Loading pack '" .. name .. "'")
-                local pack = self:add(name)
-                pack:importFromFile()
+            if string.ends_with(file, ".json") then
+                local id = string.sub(file, 1, -6)
+                outputDebugString("Loading pack '" .. id .. "'")
+
+                -- Get pack name from JSON
+                local data = json.read_file("jump_packs/" .. id .. ".json")
+                if data then
+                    self:add(data.name, data.jumps)
+                end
             end
         end
 
-        outputDebugString("Finished loading " .. #tablex.values(self.packs) .. " packs")
+        outputDebugString("Finished loading " .. #table.values(self.packs) .. " packs")
 
         self:sendJumpPacksToClient()
     end,
 
     save = function(self)
-        for name, pack in pairs(self.packs) do
-            pack:exportToFile()
+        for id, pack in pairs(self.packs) do
+            pack:export()
         end
     end,
 

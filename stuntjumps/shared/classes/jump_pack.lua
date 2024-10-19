@@ -1,5 +1,6 @@
 class "JumpPack" {
     constructor = function(self, name, jumps)
+        self.id = string.to_kebab_case(name)
         self.name = name
         self.jumps = {}
         self.active = true
@@ -17,28 +18,27 @@ class "JumpPack" {
         end
     end,
 
-    import = function(self, json_data)
+    import = function(self)
         self.jumps = {}
 
-        local decodedData = fromJSON(json_data)
-        for _, jumpData in pairs(decodedData) do
+        local data = json.read_file("jump_packs/" .. self.id .. ".json", true)
+        if not data then
+            return
+        end
+
+        for _, jumpData in pairs(data) do
             self:add(jumpData.id, jumpData.startBox, jumpData.endBox, jumpData.camera, jumpData.reward)
         end
     end,
 
-    importFromFile = function(self)
-        local jumpsFile = File.open("jump_packs/" .. self.name .. ".json", true)
-        if jumpsFile then
-            local data = jumpsFile:read(jumpsFile:getSize())
-            self:import(data)
-            jumpsFile:close()
-        end
-    end,
-
     export = function(self)
-        local exportTable = {}
+        local exportTable = {
+            id = self.id,
+            name = self.name,
+            jumps = {},
+        }
         for id, jump in pairs(self.jumps) do
-            exportTable[id] = {
+            exportTable.jumps[id] = {
                 id = jump.id,
                 startBox = jump.startBox,
                 endBox = jump.endBox,
@@ -47,24 +47,26 @@ class "JumpPack" {
             }
         end
 
-        return toJSON(exportTable, true)
-    end,
-
-    exportToFile = function(self)
-        local jumpsFile = File.new("jump_packs/" .. self.name .. ".json")
-        if jumpsFile then
-            jumpsFile:write(self:export())
-            jumpsFile:close()
-        end
+        return json.write_file("jump_packs/" .. self.id .. ".json", exportTable)
     end,
 
     clear = function(self)
         self.jumps = {}
     end,
 
-    setupBlips = function(self)
+    setupBlips = function(self, destroy)
+        if not localPlayer then
+            return
+        end
+
+        destroy = destroy == true
+
         for _, jump in pairs(self.jumps) do
-            jump:setupBlip()
+            if destroy then
+                jump:destroyBlip()
+            else
+                jump:setupBlip()
+            end
         end
     end,
 
@@ -78,6 +80,7 @@ class "JumpPack" {
         end
 
         self.active = active
+        self:setupBlips(not self.active)
     end,
 
     add = function(self, id, startBox, endBox, camera, reward)
@@ -97,7 +100,7 @@ class "JumpPack" {
     end,
 
     getCount = function(self)
-        return #tablex.values(self.jumps)
+        return #table.values(self.jumps)
     end,
 
     getJumpForStartBox = function(self, x, y, z)

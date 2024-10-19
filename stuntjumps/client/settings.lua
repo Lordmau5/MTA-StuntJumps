@@ -39,7 +39,6 @@ class "c_Settings" {
         if settingsFile then
             local data = settingsFile:read(settingsFile:getSize())
             self.settings = fromJSON(data)
-            outputDebugString("Loaded: " .. data)
             settingsFile:close()
         end
     end,
