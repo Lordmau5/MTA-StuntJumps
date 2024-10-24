@@ -154,7 +154,7 @@ local function registerClass(name, superClasses, definition)
         recursiveCall(object, "constructor", ...)
 
         -- Disable constructor
-        rawset(object, "constructor", false)
+        rawset(object, "constructor", nil)
 
         return object
     end
@@ -164,7 +164,7 @@ local function registerClass(name, superClasses, definition)
         recursiveCall(self, true, "destructor")
 
         -- Disable destructor
-        rawset(self, "destructor", false)
+        rawset(self, "destructor", nil)
 
         -- Remove attached metatable
         setmetatable(self, nil)
