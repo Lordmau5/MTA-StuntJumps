@@ -19,22 +19,22 @@
 -- check if a given string ends with another
 -- (without garbage)
 string.ends_with = function(s, suffix)
-    local len = #s
-    local suffix_len = #suffix
-    for i = 0, suffix_len - 1 do
-        if string.byte(s, len - i) ~= string.byte(suffix, suffix_len - i) then
-            return false
-        end
-    end
-    return true
+	local len = #s
+	local suffix_len = #suffix
+	for i = 0, suffix_len - 1 do
+		if string.byte(s, len - i) ~= string.byte(suffix, suffix_len - i) then
+			return false
+		end
+	end
+	return true
 end
 
 -- collect all values of a keyed table into a sequential table
 -- (shallow copy if it's already sequential)
 table.values = function(t)
-    local r = {}
-    for k, v in pairs(t) do
-        table.insert(r, v)
-    end
-    return r
+	local r = {}
+	for k, v in pairs(t) do
+		table.insert(r, v)
+	end
+	return r
 end

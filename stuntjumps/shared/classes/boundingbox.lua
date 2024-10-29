@@ -1,36 +1,35 @@
 class "BoundingBox" {
-    constructor = function(self, min, max)
-        self.min = min
-        self.max = max
-    end,
+	constructor = function(self, min, max)
+		self.min = min
+		self.max = max
+	end,
 
-    fromCorners = function(firstCorner, secondCorner)
-        local minX = math.min(firstCorner.x, secondCorner.x)
-        local maxX = math.max(firstCorner.x, secondCorner.x)
+	fromCorners = function(firstCorner, secondCorner)
+		local minX = math.min(firstCorner.x, secondCorner.x)
+		local maxX = math.max(firstCorner.x, secondCorner.x)
 
-        local minY = math.min(firstCorner.y, secondCorner.y)
-        local maxY = math.max(firstCorner.y, secondCorner.y)
+		local minY = math.min(firstCorner.y, secondCorner.y)
+		local maxY = math.max(firstCorner.y, secondCorner.y)
 
-        local minZ = math.min(firstCorner.z, secondCorner.z)
-        local maxZ = math.max(firstCorner.z, secondCorner.z)
+		local minZ = math.min(firstCorner.z, secondCorner.z)
+		local maxZ = math.max(firstCorner.z, secondCorner.z)
 
-        return BoundingBox({
-            x = minX,
-            y = minY,
-            z = minZ,
-        }, {
-            x = maxX,
-            y = maxY,
-            z = maxZ,
-        })
-    end,
+		return BoundingBox({
+			x = minX,
+			y = minY,
+			z = minZ,
+		}, {
+			x = maxX,
+			y = maxY,
+			z = maxZ,
+		})
+	end,
 
-    isPointInside = function(self, x, y, z)
-        if x >= self.min.x and x <= self.max.x and y >= self.min.y and y <= self.max.y and z >= self.min.z and z <=
-            self.max.z then
-            return true
-        end
+	isPointInside = function(self, x, y, z)
+		if x >= self.min.x and x <= self.max.x and y >= self.min.y and y <= self.max.y and z >= self.min.z and z <= self.max.z then
+			return true
+		end
 
-        return false
-    end,
+		return false
+	end,
 }
