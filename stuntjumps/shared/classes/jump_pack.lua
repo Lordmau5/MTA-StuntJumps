@@ -1,115 +1,116 @@
-class "JumpPack" {
-	constructor = function(self, name, jumps)
-		self.id = string.to_kebab_case(name)
-		self.name = name
-		self.jumps = {}
-		self.active = true
+---@class JumpPack: Class
+JumpPack = class()
 
-		if jumps ~= nil then
-			for _, jump in pairs(jumps) do
-				self:add(jump.id, jump.startBox, jump.endBox, jump.camera, jump.reward)
-			end
+function JumpPack:init(name, jumps)
+	self.id = string.to_kebab_case(name)
+	self.name = name
+	self.jumps = {} --[=[@as StuntJump[]]=]
+	self.active = true
+
+	if jumps ~= nil then
+		for _, jump in pairs(jumps) do
+			self:add(jump.id, jump.startBox, jump.endBox, jump.camera, jump.reward)
 		end
-	end,
+	end
+end
 
-	destructor = function(self)
-		for _, jump in pairs(self.jumps) do
-			jump:destroyBlip()
-		end
-	end,
+function JumpPack:destructor()
+	for _, jump in pairs(self.jumps) do
+		jump:destroyBlip()
+	end
+end
 
-	import = function(self)
-		self.jumps = {}
+function JumpPack:import()
+	self.jumps = {}
 
-		local data = json.read_file("jump_packs/" .. self.id .. ".json", true)
-		if not data then
-			return
-		end
+	local data = JSON.read_file("jump_packs/" .. self.id .. ".json")
+	if not data then
+		return
+	end
 
-		for _, jumpData in pairs(data) do
-			self:add(jumpData.id, jumpData.startBox, jumpData.endBox, jumpData.camera, jumpData.reward)
-		end
-	end,
+	for _, jumpData in pairs(data) do
+		self:add(jumpData.id, jumpData.startBox, jumpData.endBox, jumpData.camera, jumpData.reward)
+	end
+end
 
-	export = function(self)
-		local exportTable = {
-			id = self.id,
-			name = self.name,
-			jumps = {},
+function JumpPack:export()
+	local exportTable = {
+		id = self.id,
+		name = self.name,
+		jumps = {},
+	}
+	for id, jump in pairs(self.jumps) do
+		exportTable.jumps[id] = {
+			id = jump.id,
+			startBox = jump.startBox,
+			endBox = jump.endBox,
+			camera = jump.camera,
+			reward = jump.reward,
 		}
-		for id, jump in pairs(self.jumps) do
-			exportTable.jumps[id] = {
-				id = jump.id,
-				startBox = jump.startBox,
-				endBox = jump.endBox,
-				camera = jump.camera,
-				reward = jump.reward,
-			}
+	end
+
+	return JSON.write_file("jump_packs/" .. self.id .. ".json", exportTable)
+end
+
+function JumpPack:clear()
+	self.jumps = {}
+end
+
+function JumpPack:setupBlips(destroy)
+	if not localPlayer then
+		return
+	end
+
+	destroy = destroy == true
+
+	for _, jump in pairs(self.jumps) do
+		if destroy then
+			jump:destroyBlip()
+		else
+			jump:setupBlip()
 		end
+	end
+end
 
-		return json.write_file("jump_packs/" .. self.id .. ".json", exportTable)
-	end,
+function JumpPack:isActive()
+	return self.active
+end
 
-	clear = function(self)
-		self.jumps = {}
-	end,
+function JumpPack:setActive(active)
+	if active ~= true and active ~= false then
+		active = true
+	end
 
-	setupBlips = function(self, destroy)
-		if not localPlayer then
-			return
+	self.active = active
+	self:setupBlips(not self.active)
+end
+
+function JumpPack:add(id, startBox, endBox, camera, reward)
+	if self.jumps[id] ~= nil then
+		return false
+	end
+
+	local jump = StuntJump:new(id, startBox, endBox, camera, reward) --[[@as StuntJump]]
+
+	self.jumps[id] = jump
+
+	return jump
+end
+
+function JumpPack:get(id)
+	return self.jumps[id]
+end
+
+function JumpPack:getCount()
+	return #table.values(self.jumps)
+end
+
+function JumpPack:getJumpForStartBox(x, y, z)
+	for _, jump in pairs(self.jumps) do
+		if jump:isInStartBox(x, y, z) then
+			return jump
 		end
+	end
 
-		destroy = destroy == true
-
-		for _, jump in pairs(self.jumps) do
-			if destroy then
-				jump:destroyBlip()
-			else
-				jump:setupBlip()
-			end
-		end
-	end,
-
-	isActive = function(self)
-		return self.active
-	end,
-
-	setActive = function(self, active)
-		if active ~= true and active ~= false then
-			active = true
-		end
-
-		self.active = active
-		self:setupBlips(not self.active)
-	end,
-
-	add = function(self, id, startBox, endBox, camera, reward)
-		if self.jumps[id] ~= nil then
-			return false
-		end
-
-		local jump = StuntJump(id, startBox, endBox, camera, reward)
-
-		self.jumps[id] = jump
-
-		return jump
-	end,
-
-	get = function(self, id)
-		return self.jumps[id]
-	end,
-
-	getCount = function(self)
-		return #table.values(self.jumps)
-	end,
-
-	getJumpForStartBox = function(self, x, y, z)
-		for _, jump in pairs(self.jumps) do
-			if jump:isInStartBox(x, y, z) then
-				return jump
-			end
-		end
-
-		return nil
-	end,
-}
+	return nil
+end

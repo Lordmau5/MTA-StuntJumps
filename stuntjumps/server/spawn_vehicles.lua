@@ -1,34 +1,35 @@
-class "VehicleSpawner" {
-	constructor = function(self)
-		self.vehicles = {
-			nrg = {},
-			packer = {},
-		}
+---@class VehicleSpawner: Class
+VehicleSpawner = class()
 
-		addEvent("spawnVehicle", true)
-		addEventHandler("spawnVehicle", root, function(type)
-			self:spawnVehicle(client, type)
-		end)
-	end,
+function VehicleSpawner:init()
+	self.vehicles = {
+		nrg = {},
+		packer = {},
+	}
 
-	spawnVehicle = function(self, player, type)
-		if getElementType(player) ~= "player" then
-			return
-		end
+	addEvent("spawnVehicle", true)
+	addEventHandler("spawnVehicle", root, function(type)
+		self:spawnVehicle(client, type)
+	end)
+end
 
-		type = self.vehicles[type] and type or "nrg"
+function VehicleSpawner:spawnVehicle(player, type)
+	if getElementType(player) ~= "player" then
+		return
+	end
 
-		local x, y, z = getElementPosition(player)
-		local vehicle = createVehicle(type == "packer" and 443 or 522, x, y, z) -- 522 for NRG, 443 for packer
-		setElementRotation(vehicle, getElementRotation(player))
-		warpPedIntoVehicle(player, vehicle)
+	type = self.vehicles[type] and type or "nrg"
 
-		if self.vehicles[type][player] then
-			destroyElement(self.vehicles[type][player])
-		end
+	local x, y, z = getElementPosition(player)
+	local vehicle = createVehicle(type == "packer" and 443 or 522, x, y, z) -- 522 for NRG, 443 for packer
+	setElementRotation(vehicle, getElementRotation(player))
+	warpPedIntoVehicle(player, vehicle)
 
-		self.vehicles[type][player] = vehicle
-	end,
-}
+	if self.vehicles[type][player] then
+		destroyElement(self.vehicles[type][player])
+	end
 
-VehicleSpawner()
+	self.vehicles[type][player] = vehicle
+end
+
+VehicleSpawner:new()

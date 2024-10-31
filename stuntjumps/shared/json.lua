@@ -1,6 +1,7 @@
-json = {}
+---@class JSON: Class
+JSON = class()
 
-function json.read_file(path)
+function JSON.read_file(path)
 	local file = File.open(path, true)
 	if file then
 		local data = file:read(file:getSize())
@@ -12,7 +13,7 @@ function json.read_file(path)
 	return nil
 end
 
-function json.write_file(path, data)
+function JSON.write_file(path, data)
 	local file = File.new(path, true)
 	if file then
 		file:write(toJSON(data))

@@ -1,15 +1,16 @@
-class "ServerInit" {
-	constructor = function(self)
-		addEventHandler("onResourceStart", resourceRoot, function()
-			self:onStart()
-		end)
-	end,
+---@class ServerInit: Class
+ServerInit = class()
 
-	onStart = function(self)
-		setTimer(function()
-			StuntJumps:load()
-		end, 1000, 1)
-	end,
-}
+function ServerInit:init()
+	addEventHandler("onResourceStart", resourceRoot, function()
+		self:onStart()
+	end)
+end
 
-ServerInit()
+function ServerInit:onStart()
+	setTimer(function()
+		StuntJumps:load()
+	end, 1000, 1)
+end
+
+ServerInit:new()

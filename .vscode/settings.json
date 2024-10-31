@@ -1,0 +1,10 @@
+{
+	"Lua.diagnostics.globals": [
+		"File"
+	],
+	"Lua.runtime.version": "Lua 5.1",
+	"Lua.diagnostics.globalsRegex": [
+		"dgs*"
+	],
+	"editor.formatOnSave": true
+}

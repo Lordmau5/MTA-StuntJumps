@@ -4,74 +4,75 @@ local __default_settings = {
 	drawBoundingBoxes = false,
 }
 
-class "c_Settings" {
-	constructor = function(self)
-		self.settings = {
-			fpsLimit = __default_settings.fpsLimit,
-			canBeKnockedOffBike = __default_settings.canBeKnockedOffBike,
-			drawBoundingBoxes = __default_settings.drawBoundingBoxes,
-		}
+---@class SettingsClass: Class
+SettingsClass = class()
 
-		addEventHandler("onClientResourceStart", resourceRoot, function()
-			self:onStart()
-		end)
-	end,
+function SettingsClass:init()
+	self.settings = {
+		fpsLimit = __default_settings.fpsLimit,
+		canBeKnockedOffBike = __default_settings.canBeKnockedOffBike,
+		drawBoundingBoxes = __default_settings.drawBoundingBoxes,
+	}
 
-	onStart = function(self)
-		self:load()
+	addEventHandler("onClientResourceStart", resourceRoot, function()
+		self:onStart()
+	end)
+end
 
-		self:updateSettings()
-	end,
+function SettingsClass:onStart()
+	self:load()
 
-	updateSettings = function(self)
-		setFPSLimit(self:get("fpsLimit"))
-		setPedCanBeKnockedOffBike(localPlayer, self:get("canBeKnockedOffBike"))
+	self:updateSettings()
+end
 
-		MainUI:updateCheckboxes()
-	end,
+function SettingsClass:updateSettings()
+	setFPSLimit(self:get("fpsLimit"))
+	setPedCanBeKnockedOffBike(localPlayer, self:get("canBeKnockedOffBike"))
 
-	load = function(self)
-		if not File.exists("settings.json") then
-			return
-		end
+	MainUI:updateCheckboxes()
+end
 
-		local settingsFile = File.open("settings.json", true)
-		if settingsFile then
-			local data = settingsFile:read(settingsFile:getSize())
-			self.settings = fromJSON(data)
-			settingsFile:close()
-		end
-	end,
+function SettingsClass:load()
+	if not File.exists("settings.json") then
+		return
+	end
 
-	save = function(self)
-		local settingsFile = File.new("settings.json")
-		if settingsFile then
-			settingsFile:write(toJSON(self.settings))
-			settingsFile:close()
-		end
-	end,
+	local settingsFile = File.open("settings.json", true)
+	if settingsFile then
+		local data = settingsFile:read(settingsFile:getSize())
+		self.settings = fromJSON(data)
+		settingsFile:close()
+	end
+end
 
-	get = function(self, key)
-		if self.settings[key] ~= nil then
-			return self.settings[key]
-		end
+function SettingsClass:save()
+	local settingsFile = File.new("settings.json")
+	if settingsFile then
+		settingsFile:write(toJSON(self.settings))
+		settingsFile:close()
+	end
+end
 
-		return __default_settings[key]
-	end,
+function SettingsClass:get(key)
+	if self.settings[key] ~= nil then
+		return self.settings[key]
+	end
 
-	set = function(self, key, value)
-		if __default_settings[key] == nil then
-			return false
-		end
+	return __default_settings[key]
+end
 
-		self.settings[key] = value
-		outputDebugString("Set: " .. key .. " to " .. tostring(self.settings[key]))
+function SettingsClass:set(key, value)
+	if __default_settings[key] == nil then
+		return false
+	end
 
-		self:updateSettings()
-		self:save()
+	self.settings[key] = value
+	outputDebugString("Set: " .. key .. " to " .. tostring(self.settings[key]))
 
-		return true
-	end,
-}
+	self:updateSettings()
+	self:save()
 
-Settings = c_Settings()
+	return true
+end
+
+Settings = SettingsClass:new() --[[@as SettingsClass]]

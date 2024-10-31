@@ -1,48 +1,49 @@
-class "StuntJump" {
-	constructor = function(self, id, startBox, endBox, camera, reward, ignoresHeight)
-		self.id = id
-		self.startBox = startBox.__class == "BoundingBox" and startBox or BoundingBox(startBox.min, startBox.max)
-		self.endBox = endBox.__class == "BoundingBox" and endBox or BoundingBox(endBox.min, endBox.max)
-		self.camera = camera
-		self.reward = reward
+---@class StuntJump: Class
+StuntJump = class()
 
-		-- Default to not ignoring height
-		self.ignoresHeight = ignoresHeight == true
+function StuntJump:init(id, startBox, endBox, camera, reward, ignoresHeight)
+	self.id = id
+	self.startBox = startBox.__class == "BoundingBox" and startBox or BoundingBox:new(startBox.min, startBox.max)
+	self.endBox = endBox.__class == "BoundingBox" and endBox or BoundingBox:new(endBox.min, endBox.max)
+	self.camera = camera
+	self.reward = reward
 
-		self.blip = nil
-	end,
+	-- Default to not ignoring height
+	self.ignoresHeight = ignoresHeight == true
 
-	setupBlip = function(self)
-		if not localPlayer then
-			return
-		end
+	self.blip = nil
+end
 
-		self:destroyBlip()
+function StuntJump:setupBlip()
+	if not localPlayer then
+		return
+	end
 
-		local centerX = (self.startBox.min.x + self.startBox.max.x) / 2
-		local centerY = (self.startBox.min.y + self.startBox.max.y) / 2
-		local centerZ = (self.startBox.min.z + self.startBox.max.z) / 2
+	self:destroyBlip()
 
-		local ground = getGroundPosition(centerX, centerY, centerZ)
+	local centerX = (self.startBox.min.x + self.startBox.max.x) / 2
+	local centerY = (self.startBox.min.y + self.startBox.max.y) / 2
+	local centerZ = (self.startBox.min.z + self.startBox.max.z) / 2
 
-		self.blip = createBlip(centerX, centerY, centerZ, 0, 1, 0, 255, 255, 255, 0, 65535)
-	end,
+	local ground = getGroundPosition(centerX, centerY, centerZ)
 
-	destroyBlip = function(self)
-		if isElement(self.blip) then
-			destroyElement(self.blip)
-		end
-	end,
+	self.blip = createBlip(centerX, centerY, centerZ, 0, 1, 0, 255, 255, 255, 0, 65535)
+end
 
-	isInStartBox = function(self, x, y, z)
-		return self.startBox:isPointInside(x, y, z)
-	end,
+function StuntJump:destroyBlip()
+	if isElement(self.blip) then
+		destroyElement(self.blip)
+	end
+end
 
-	isInEndBox = function(self, x, y, z)
-		return self.endBox:isPointInside(x, y, z)
-	end,
+function StuntJump:isInStartBox(x, y, z)
+	return self.startBox:isPointInside(x, y, z)
+end
 
-	doesIgnoreHeight = function(self)
-		return self.ignoresHeight
-	end,
-}
+function StuntJump:isInEndBox(x, y, z)
+	return self.endBox:isPointInside(x, y, z)
+end
+
+function StuntJump:doesIgnoreHeight()
+	return self.ignoresHeight
+end
