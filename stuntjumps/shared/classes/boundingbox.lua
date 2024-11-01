@@ -16,7 +16,7 @@ function BoundingBox.fromCorners(firstCorner, secondCorner)
 	local minZ = math.min(firstCorner.z, secondCorner.z)
 	local maxZ = math.max(firstCorner.z, secondCorner.z)
 
-	return BoundingBox:new({
+	return BoundingBox({
 		x = minX,
 		y = minY,
 		z = minZ,

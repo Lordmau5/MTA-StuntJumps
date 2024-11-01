@@ -212,4 +212,4 @@ function MainUIClass:updateCheckboxes()
 	dgsCheckBoxSetSelected(self.ui.checkbox["drawBoundingBoxes"], Settings:get("drawBoundingBoxes"))
 end
 
-MainUI = MainUIClass:new() --[[@as MainUIClass]]
+MainUI = MainUIClass() --[[@as MainUIClass]]

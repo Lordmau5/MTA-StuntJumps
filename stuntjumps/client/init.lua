@@ -154,4 +154,4 @@ function ClientInit:renderAllBoundingBoxes()
 	end
 end
 
-ClientInit:new()
+ClientInit()

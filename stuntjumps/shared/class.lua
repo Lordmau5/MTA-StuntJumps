@@ -14,9 +14,9 @@ function Class:init(...) end
 function Class:extend(obj)
 	obj = obj or {}
 
-	local function copyTable(table, destination)
-		local table = table or {}
-		local result = destination or {}
+	local function copyTable(_table, _destination)
+		local table = _table or {}
+		local result = _destination or {}
 
 		for k, v in pairs(table) do
 			if not result[k] then
@@ -31,13 +31,13 @@ function Class:extend(obj)
 		return result
 	end
 
-	copyTable(self, obj)
+	obj = copyTable(self, obj)
 
 	local mt = {}
 
 	-- create new objects directly, like o = Object()
-	mt.__call = function(self, ...)
-		return self:new(...)
+	mt.__call = function(_self, ...)
+		return _self:new(...)
 	end
 
 	setmetatable(obj, mt)

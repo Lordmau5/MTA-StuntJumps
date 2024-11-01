@@ -75,4 +75,4 @@ function SettingsClass:set(key, value)
 	return true
 end
 
-Settings = SettingsClass:new() --[[@as SettingsClass]]
+Settings = SettingsClass() --[[@as SettingsClass]]

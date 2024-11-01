@@ -142,4 +142,4 @@ function BoundingBoxEditorClass:moveOrScaleBoundingBox(box, boxType, direction)
 	Editor:updateEditBoundingBox(box, boxType)
 end
 
-BoundingBoxEditor = BoundingBoxEditorClass:new() --[[@as BoundingBoxEditorClass]]
+BoundingBoxEditor = BoundingBoxEditorClass() --[[@as BoundingBoxEditorClass]]

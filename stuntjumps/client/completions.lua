@@ -103,4 +103,4 @@ function CompletionsClass:resetJumpCompletions(pack)
 	return true
 end
 
-Completions = CompletionsClass:new() --[[@as CompletionsClass]]
+Completions = CompletionsClass() --[[@as CompletionsClass]]

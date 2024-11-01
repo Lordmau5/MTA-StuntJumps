@@ -526,4 +526,4 @@ function EditorClass:createAndTeleport(adjust)
 	end
 end
 
-Editor = EditorClass:new() --[[@as EditorClass]]
+Editor = EditorClass() --[[@as EditorClass]]

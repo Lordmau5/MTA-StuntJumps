@@ -13,4 +13,4 @@ function ServerInit:onStart()
 	end, 1000, 1)
 end
 
-ServerInit:new()
+ServerInit()

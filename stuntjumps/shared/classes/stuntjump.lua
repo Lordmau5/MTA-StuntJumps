@@ -3,8 +3,8 @@ StuntJump = class()
 
 function StuntJump:init(id, startBox, endBox, camera, reward, ignoresHeight)
 	self.id = id
-	self.startBox = startBox.__class == "BoundingBox" and startBox or BoundingBox:new(startBox.min, startBox.max)
-	self.endBox = endBox.__class == "BoundingBox" and endBox or BoundingBox:new(endBox.min, endBox.max)
+	self.startBox = startBox.__class == "BoundingBox" and startBox or BoundingBox(startBox.min, startBox.max)
+	self.endBox = endBox.__class == "BoundingBox" and endBox or BoundingBox(endBox.min, endBox.max)
 	self.camera = camera
 	self.reward = reward
 

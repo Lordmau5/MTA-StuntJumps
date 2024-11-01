@@ -32,4 +32,4 @@ function VehicleSpawner:spawnVehicle(player, type)
 	self.vehicles[type][player] = vehicle
 end
 
-VehicleSpawner:new()
+VehicleSpawner()

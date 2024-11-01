@@ -226,4 +226,4 @@ function JumpClass:updateCameraDuringStuntJump()
 	end
 end
 
-Jump = JumpClass:new() --[[@as JumpClass]]
+Jump = JumpClass() --[[@as JumpClass]]

@@ -12,7 +12,7 @@ function StuntJumpsClass:add(name, jumps)
 		return false
 	end
 
-	self.packs[id] = JumpPack:new(name, jumps)
+	self.packs[id] = JumpPack(name, jumps)
 	self.packs[id]:setupBlips()
 
 	return self.packs[id]
@@ -111,4 +111,4 @@ function StuntJumpsClass:getJumpForStartBox(x, y, z)
 	return nil
 end
 
-StuntJumps = StuntJumpsClass:new() --[[@as StuntJumpsClass]]
+StuntJumps = StuntJumpsClass() --[[@as StuntJumpsClass]]

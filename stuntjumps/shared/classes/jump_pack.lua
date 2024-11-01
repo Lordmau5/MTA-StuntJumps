@@ -90,7 +90,7 @@ function JumpPack:add(id, startBox, endBox, camera, reward)
 		return false
 	end
 
-	local jump = StuntJump:new(id, startBox, endBox, camera, reward) --[[@as StuntJump]]
+	local jump = StuntJump(id, startBox, endBox, camera, reward) --[[@as StuntJump]]
 
 	self.jumps[id] = jump
 

@@ -125,4 +125,4 @@ function BoundingBoxRendererClass:drawBoundingBox(corner1, corner2, outlineColor
 	self:dxDrawTriangleFan(corners[4], corners[1], corners[5], corners[8], fillColor) -- West face
 end
 
-BoundingBoxRenderer = BoundingBoxRendererClass:new() --[[@as BoundingBoxRendererClass]]
+BoundingBoxRenderer = BoundingBoxRendererClass() --[[@as BoundingBoxRendererClass]]

@@ -1965,7 +1965,7 @@ local og_jumps = {
 OG_JumpsClass = class()
 
 function OG_JumpsClass:init()
-	self.ogJumps = JumpPack:new("gta")
+	self.ogJumps = JumpPack("gta")
 end
 
 function OG_JumpsClass:decipherJump(jump)
@@ -2011,5 +2011,5 @@ function OG_JumpsClass:decipherAndSave()
 	self.ogJumps:export()
 end
 
-OG_Jumps = OG_JumpsClass:new() --[[@as OG_JumpsClass]]
+OG_Jumps = OG_JumpsClass() --[[@as OG_JumpsClass]]
 -- OG_Jumps:decipherAndSave()
