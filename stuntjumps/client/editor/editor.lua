@@ -161,7 +161,8 @@ function EditorClass:updatePlayerPosition()
 		return
 	end
 
-	localPlayer.position = Camera.position
+	local camX, camY, camZ = getElementPosition(getCamera())
+	setElementPosition(localPlayer, camX, camY, camZ)
 
 	-- Draw crosshair
 	local screenWidth, screenHeight = guiGetScreenSize()
@@ -194,16 +195,16 @@ function EditorClass:toggleEditMode(mode)
 
 	if self.editModeActive then
 		-- Entering freecam, hide player and HUD
-		localPlayer.frozen = true
-		localPlayer.alpha = 0
+		setElementFrozen(localPlayer, true)
+		setElementAlpha(localPlayer, 0)
 
-		local cam = Camera.position
-		exports.stuntjumps_freecam:setFreecamEnabled(cam.x, cam.y, cam.z)
+		local camX, camY, camZ = getElementPosition(getCamera())
+		exports.stuntjumps_freecam:setFreecamEnabled(camX, camY, camZ)
 	else
 		-- Leaving freecam, restore normal gameplay view
-		Camera.target = localPlayer
-		localPlayer.frozen = false
-		localPlayer.alpha = 255
+		setCameraTarget(localPlayer)
+		setElementFrozen(localPlayer, false)
+		setElementAlpha(localPlayer, 255)
 
 		self:closeGui()
 		self.activeEditBoundingBox = 0
@@ -312,14 +313,14 @@ end
 
 -- Get the point where the camera is aiming at the ground
 function EditorClass:getCameraAimPoint()
-	local cam = getCamera().position
+	local camX, camY, camZ = getElementPosition(getCamera())
 	local screenWidth, screenHeight = guiGetScreenSize()
 	local targetX, targetY, targetZ = getWorldFromScreenPosition(screenWidth / 2, screenHeight / 2, 1000)
 
 	local hit, hitX, hitY, hitZ = processLineOfSight(
-		cam.x,
-		cam.y,
-		cam.z,
+		camX,
+		camY,
+		camZ,
 		targetX,
 		targetY,
 		targetZ,
@@ -514,15 +515,15 @@ function EditorClass:createAndTeleport(adjust)
 
 	local startMin = jump.startBox.min
 
-	local element = localPlayer.vehicle or localPlayer
+	local element = getPedOccupiedVehicle(localPlayer) or localPlayer
 	if self:isEditModeActive() then
 		exports.stuntjumps_freecam:setFreecamDisabled()
 
-		element.position = Vector3(startMin.x, startMin.y, startMin.z + 10)
+		setElementPosition(element, startMin.x, startMin.y, startMin.z + 10)
 
 		exports.stuntjumps_freecam:setFreecamEnabled(startMin.x, startMin.y, startMin.z + 10)
 	else
-		element.position = Vector3(startMin.x, startMin.y, startMin.z + 2)
+		setElementPosition(element, startMin.x, startMin.y, startMin.z + 2)
 	end
 end
 

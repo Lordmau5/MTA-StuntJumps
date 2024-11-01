@@ -55,24 +55,24 @@ end
 -- If the vehicle is driving the minimum required speed to trigger a Starting stunt jump
 -- https://github.com/gta-reversed/gta-reversed-modern/blob/master/source/game_sa/StuntJumpManager.cpp#L111
 function JumpClass:isVehicleDrivingJumpSpeed()
-	if not self.vehicle or not self.vehicle.velocity then
+	if not self.vehicle or not getElementVelocity(self.vehicle) then
 		return false
 	end
 
-	local v = self.vehicle.velocity
-	return (math.sqrt(v.x ^ 2 + v.y ^ 2 + v.z ^ 2) * 50) >= 20
+	local veloX, veloY, veloZ = getElementVelocity(self.vehicle)
+	return (math.sqrt(veloX ^ 2 + veloY ^ 2 + veloZ ^ 2) * 50) >= 20
 end
 
 function JumpClass:isVehicleMovingUpwards(jump)
-	if not self.vehicle or not self.vehicle.velocity or not jump then
+	if not self.vehicle or not getElementVelocity(self.vehicle) or not jump then
 		return false
 	end
 
-	local velocity = self.vehicle.velocity
+	local _, _, veloZ = getElementVelocity(self.vehicle)
 
 	-- Check if Z velocity is upward at least a bit
 	-- This prevents jumps from triggering when jumping *down*
-	return jump:doesIgnoreHeight() or velocity.z >= 0.1
+	return jump:doesIgnoreHeight() or veloZ >= 0.1
 end
 
 -- If all the conditions are met to trigger the start of a stunt jump
@@ -108,8 +108,8 @@ function JumpClass:getStuntJumpForPosition()
 		return nil
 	end
 
-	local pos = self.vehicle.position
-	return StuntJumps:getJumpForStartBox(pos.x, pos.y, pos.z)
+	local posX, posY, posZ = getElementPosition(self.vehicle)
+	return StuntJumps:getJumpForStartBox(posX, posY, posZ)
 end
 
 function JumpClass:isFailureStateMet()
@@ -171,8 +171,8 @@ function JumpClass:gameTick()
 			return
 		end
 
-		local pos = self.vehicle.position
-		if self.currentJump:isInEndBox(pos.x, pos.y, pos.z) and not self.hitEndTrigger then
+		local posX, posY, posZ = getElementPosition(self.vehicle)
+		if self.currentJump:isInEndBox(posX, posY, posZ) and not self.hitEndTrigger then
 			self.hitEndTrigger = true
 			if not Completions:isJumpCompleted(self.currentJump) then
 				playSFX("genrl", 52, 18, false)
@@ -215,7 +215,8 @@ function JumpClass:updateCameraDuringStuntJump()
 	if self.currentJump then
 		local cam = self.currentJump.camera
 		if cam and cam.x then
-			local pos = localPlayer.position
+			local posX, posY, posZ = getElementPosition(localPlayer)
+			local pos = Vector3(posX, posY, posZ)
 
 			if cam.lookAtX then
 				pos = Vector3(cam.lookAtX, cam.lookAtY, cam.lookAtZ)

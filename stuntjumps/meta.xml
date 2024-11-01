@@ -2,8 +2,6 @@
   <info author="Lordmau5" type="script" name="stuntjumps"/>
   <min_mta_version client="1.6.0-9.22470"/>
 
-  <oop>true</oop>
-
   <include resource="stuntjumps_freecam"/>
   <include resource="dgs"/>
 
