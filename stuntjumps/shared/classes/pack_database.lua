@@ -28,7 +28,7 @@ function StuntJumpsClass:remove(name, delete)
 	self.packs[id] = nil
 
 	if delete then
-		File.delete("jump_packs/" .. id .. ".json")
+		fileDelete("jump_packs/" .. id .. ".json")
 	end
 end
 

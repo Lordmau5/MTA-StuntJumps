@@ -33,23 +33,24 @@ function SettingsClass:updateSettings()
 end
 
 function SettingsClass:load()
-	if not File.exists("settings.json") then
+	if not fileExists("settings.json") then
 		return
 	end
 
-	local settingsFile = File.open("settings.json", true)
+	local settingsFile = fileOpen("settings.json", true)
 	if settingsFile then
-		local data = settingsFile:read(settingsFile:getSize())
+		local data = fileRead(settingsFile, fileGetSize(settingsFile))
+		fileClose(settingsFile)
+
 		self.settings = fromJSON(data)
-		settingsFile:close()
 	end
 end
 
 function SettingsClass:save()
-	local settingsFile = File.new("settings.json")
+	local settingsFile = fileCreate("settings.json")
 	if settingsFile then
-		settingsFile:write(toJSON(self.settings))
-		settingsFile:close()
+		fileWrite(settingsFile, toJSON(self.settings))
+		fileClose(settingsFile)
 	end
 end
 

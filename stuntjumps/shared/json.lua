@@ -2,10 +2,10 @@
 JSON = class()
 
 function JSON.read_file(path)
-	local file = File.open(path, true)
+	local file = fileOpen(path, true)
 	if file then
-		local data = file:read(file:getSize())
-		file:close()
+		local data = fileRead(file, fileGetSize(file))
+		fileClose(file)
 
 		return fromJSON(data)
 	end
@@ -14,10 +14,10 @@ function JSON.read_file(path)
 end
 
 function JSON.write_file(path, data)
-	local file = File.new(path, true)
+	local file = fileCreate(path)
 	if file then
-		file:write(toJSON(data))
-		file:close()
+		fileWrite(file, toJSON(data))
+		fileClose(file)
 
 		return true
 	end

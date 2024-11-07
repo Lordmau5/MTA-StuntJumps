@@ -7,15 +7,16 @@ function CompletionsClass:init()
 end
 
 function CompletionsClass:load()
-	if not File.exists("completions.json") then
+	if not fileExists("completions.json") then
 		return
 	end
 
-	local completionFile = File.open("completions.json", true)
+	local completionFile = fileOpen("completions.json", true)
 	if completionFile then
-		local data = completionFile:read(completionFile:getSize())
+		local data = fileRead(completionFile, fileGetSize(completionFile))
+		fileClose(completionFile)
+
 		self.completions = fromJSON(data)
-		completionFile:close()
 
 		for id, state in pairs(self.completions) do
 			if state == true then
@@ -29,10 +30,10 @@ function CompletionsClass:load()
 end
 
 function CompletionsClass:save()
-	local completionFile = File.new("completions.json")
+	local completionFile = fileCreate("completions.json")
 	if completionFile then
-		completionFile:write(toJSON(self.completions))
-		completionFile:close()
+		fileWrite(completionFile, toJSON(self.completions))
+		fileClose(completionFile)
 	end
 end
 
